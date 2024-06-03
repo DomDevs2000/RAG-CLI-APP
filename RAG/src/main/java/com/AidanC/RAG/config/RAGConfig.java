@@ -41,6 +41,9 @@ public class RAGConfig {
             simpleVectorStore.load(vectorStoreFile);
         } else {
             log.info("Vector Store File Does Not Exist, Creating...");
+            PdfFileReader pdfFileReader = new PdfFileReader(simpleVectorStore, faq);
+            pdfFileReader.init();
+            simpleVectorStore.save(vectorStoreFile);
         }
         return simpleVectorStore;
     }
