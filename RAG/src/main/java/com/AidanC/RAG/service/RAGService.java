@@ -3,19 +3,19 @@ package com.AidanC.RAG.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.embedding.EmbeddingModel;
+import java.util.stream.Collectors;
+
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.PgVectorStore;
-import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,14 +34,29 @@ public class RAGService {
     }
 
     public String getAnswer(String message) {
-        List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(2));
-        List<String> contentList = similarDocuments.stream().map(Document::getContent).toList();
+        // List<Document> similarDocuments =
+        // vectorStore.similaritySearch(SearchRequest.query(message).withTopK(2));
+        // List<String> contentList =
+        // similarDocuments.stream().map(Document::getContent).toList();
+        // PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
+        // Map<String, Object> promptParameters = new HashMap<>();
+        // promptParameters.put("input", message);
+        // promptParameters.put("documents", String.join("\n", contentList));
+        // Prompt prompt = promptTemplate.create(promptParameters);
+        //
+        // return chatClient.call(prompt).getResult().getOutput().getContent();
+        List<Document> documents = this.vectorStore.similaritySearch(message);
+        String collect = documents.stream().map(Document::getContent)
+                .collect(Collectors.joining(System.lineSeparator()));
+
         PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
         Map<String, Object> promptParameters = new HashMap<>();
         promptParameters.put("input", message);
-        promptParameters.put("documents", String.join("\n", contentList));
-        Prompt prompt = promptTemplate.create(promptParameters);
+        promptParameters.put("documents", String.join("\n", collect));
 
-        return chatClient.call(prompt).getResult().getOutput().getContent();
+        Prompt prompt = promptTemplate.create(promptParameters);
+        return chatClient.call(prompt).getResults().stream().map(generation -> {
+            return generation.getOutput().getContent();
+        }).collect(Collectors.joining("/n"));
     }
 }
