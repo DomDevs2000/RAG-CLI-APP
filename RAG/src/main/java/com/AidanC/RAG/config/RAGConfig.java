@@ -1,56 +1,47 @@
-
 package com.AidanC.RAG.config;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.vectorstore.SimpleVectorStore;
+import org.springframework.ai.reader.ExtractedTextFormatter;
+import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
+import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
+import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class RAGConfig {
 
     private static final Logger log = LoggerFactory.getLogger(RAGConfig.class);
 
-    @Value("vectorstore.json")
-    private String vectorStoreName;
-
     @Value("classpath:/docs/MScProjectHandbook.pdf")
-    private Resource faq;
+    private Resource pdfResource;
 
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder) {
         return builder.defaultSystem("Test").build();
     }
 
+    // saves pdf to vector store on startup - maybe change to save on request
     @Bean
-    public SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingClient) throws IOException {
-        SimpleVectorStore simpleVectorStore = new SimpleVectorStore(embeddingClient);
-        File vectorStoreFile = getVectorStoreFile();
-        if (vectorStoreFile.exists()) {
-            log.info("Vector Store File Exists. Loading...");
-            simpleVectorStore.load(vectorStoreFile);
-        } else {
-            log.info("Vector Store File Does Not Exist, Creating...");
-            PdfFileReader pdfFileReader = new PdfFileReader(simpleVectorStore, faq);
-            pdfFileReader.init();
-            simpleVectorStore.save(vectorStoreFile);
-        }
-        return simpleVectorStore;
+    public PgVectorStore vectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
+        PgVectorStore vectorStore = new PgVectorStore(jdbcTemplate, embeddingModel);
+        log.info("Resource being added..");
+        var config = PdfDocumentReaderConfig.builder()
+                .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build()).build();
+        PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource, config);
+        TokenTextSplitter textSplitter = new TokenTextSplitter();
+        var splitDocuments = textSplitter.apply(pagePdfDocumentReader.get());
+        vectorStore.accept(splitDocuments);
+        log.info("Resource added..");
+        return vectorStore;
+
     }
 
-    private File getVectorStoreFile() {
-        Path path = Paths.get("src", "main", "resources", "data");
-        String absolutePath = path.toFile().getAbsolutePath() + "/" + vectorStoreName;
-        return new File(absolutePath);
-    }
 }
