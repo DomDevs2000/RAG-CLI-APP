@@ -34,17 +34,6 @@ public class RAGService {
     }
 
     public String getAnswer(String message) {
-        // List<Document> similarDocuments =
-        // vectorStore.similaritySearch(SearchRequest.query(message).withTopK(2));
-        // List<String> contentList =
-        // similarDocuments.stream().map(Document::getContent).toList();
-        // PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
-        // Map<String, Object> promptParameters = new HashMap<>();
-        // promptParameters.put("input", message);
-        // promptParameters.put("documents", String.join("\n", contentList));
-        // Prompt prompt = promptTemplate.create(promptParameters);
-        //
-        // return chatClient.call(prompt).getResult().getOutput().getContent();
         List<Document> documents = this.vectorStore.similaritySearch(message);
         String collect = documents.stream().map(Document::getContent)
                 .collect(Collectors.joining(System.lineSeparator()));
