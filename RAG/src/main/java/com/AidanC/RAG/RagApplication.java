@@ -23,7 +23,10 @@ public class RagApplication implements CommandLineRunner {
     private Resource csvResource;
 
     @Value("classpath:/docs/Disney-Earnings-q4fy23.pdf")
-    private Resource earnings;
+    private Resource disneyEarnings;
+
+    @Value("classpath:/docs/Apple-Earnings-q2fy24.pdf")
+    private Resource appleEarnings;
 
     public RagApplication(TikaFileReaderConfig tikaFileReaderConfig, PdfFileReaderConfig pdfFileReaderConfig) {
         this.tikaFileReaderConfig = tikaFileReaderConfig;
@@ -39,6 +42,8 @@ public class RagApplication implements CommandLineRunner {
         // pdfFileReaderConfig.addResource(pdfResource);
         // large csv file already added to db
         // tikaFileReaderConfig.addResource(csvResource);
-        pdfFileReaderConfig.addResource(earnings);
+        // pdfFileReaderConfig.addResource(appleEarnings);
+
+        // pdfFileReaderConfig.addResource(disneyEarnings);
     }
 }
