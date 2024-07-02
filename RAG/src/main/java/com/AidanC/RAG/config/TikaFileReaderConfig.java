@@ -27,19 +27,24 @@ public class TikaFileReaderConfig {
     }
 
     public void processFilesInDirectory(String directoryPath) throws IOException {
-        try (Stream<Path> paths = Files.walk(Paths.get(directoryPath))) {
-            paths.filter(Files::isRegularFile).forEach(this::addResource);
+        Path dir = Paths.get(directoryPath);
+        if (!Files.exists(dir) || !Files.isDirectory(dir)) {
+            throw new IllegalArgumentException("Invalid directory path: " + directoryPath);
         }
-
+        try (Stream<Path> paths = Files.walk(dir)) {
+            paths.filter(Files::isRegularFile)
+                    .forEach(this::addResource);
+        }
+        log.info("Finished processing all files in directory: " + directoryPath);
     }
 
-    public void addResource(Path path) {
-        log.info("Adding Resource...");
-        Resource resource = new FileSystemResource(path.toFile());
-        TikaDocumentReader tikaDocumentReaderConfig = new TikaDocumentReader(resource);
-        TokenTextSplitter textSplitter = new TokenTextSplitter();
-        vectorStore.accept(textSplitter.apply(tikaDocumentReaderConfig.get()));
-        log.info("Resource added");
+    public void addResource(Path path) throws IllegalArgumentException {
+            log.info("Adding Resource...");
+            Resource resource = new FileSystemResource(path.toFile());
+            TikaDocumentReader tikaDocumentReaderConfig = new TikaDocumentReader(resource);
+            TokenTextSplitter textSplitter = new TokenTextSplitter();
+            vectorStore.accept(textSplitter.apply(tikaDocumentReaderConfig.get()));
+        log.info("Finished processing file: {}", path);
     }
 
     public void addResource(Resource resource) {
@@ -47,6 +52,7 @@ public class TikaFileReaderConfig {
         TikaDocumentReader tikaDocumentReaderConfig = new TikaDocumentReader(resource);
         TokenTextSplitter textSplitter = new TokenTextSplitter();
         vectorStore.accept(textSplitter.apply(tikaDocumentReaderConfig.get()));
-        log.info("Resource added");
+        log.info("Finished processing file: {}", resource);
+
     }
 }

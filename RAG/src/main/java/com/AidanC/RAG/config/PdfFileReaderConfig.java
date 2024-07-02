@@ -28,6 +28,7 @@ public class PdfFileReaderConfig {
         PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
         TokenTextSplitter textSplitter = new TokenTextSplitter();
         vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
+        log.info("Finished processing file: {}", pdfResource);
 
     }
 }

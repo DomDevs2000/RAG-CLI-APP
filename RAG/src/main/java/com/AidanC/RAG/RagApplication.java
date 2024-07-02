@@ -9,6 +9,10 @@ import org.springframework.core.io.Resource;
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.config.TikaFileReaderConfig;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @SpringBootApplication
 public class RagApplication implements CommandLineRunner {
 
@@ -22,11 +26,14 @@ public class RagApplication implements CommandLineRunner {
     @Value("classpath:/docs/Test.csv")
     private Resource csvResource;
 
-    @Value("classpath:/docs/Disney-Earnings-q4fy23.pdf")
-    private Resource disneyEarnings;
 
-    @Value("classpath:/docs/Apple-Earnings-q2fy24.pdf")
-    private Resource appleEarnings;
+
+@Value("classpath:/docs/bankstatements.csv")
+private Resource bankStatement;
+
+    @Value("src/main/resources/docs/")
+    private String directoryPath;
+
 
     public RagApplication(TikaFileReaderConfig tikaFileReaderConfig, PdfFileReaderConfig pdfFileReaderConfig) {
         this.tikaFileReaderConfig = tikaFileReaderConfig;
@@ -38,12 +45,13 @@ public class RagApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
-        // pdfFileReaderConfig.addResource(pdfResource);
-        // large csv file already added to db
-        // tikaFileReaderConfig.addResource(csvResource);
-        // pdfFileReaderConfig.addResource(appleEarnings);
+    public void run(String... args) throws IOException {
+//         pdfFileReaderConfig.addResource(pdfResource);
+         tikaFileReaderConfig.addResource(bankStatement);
+//         tikaFileReaderConfig.addResource(csvResource);
+//        Path path = Paths.get("src/main/resources/docs/Test.csv");
+//        tikaFileReaderConfig.addResource(path);
+//        tikaFileReaderConfig.processFilesInDirectory(directoryPath);
 
-        // pdfFileReaderConfig.addResource(disneyEarnings);
     }
 }
