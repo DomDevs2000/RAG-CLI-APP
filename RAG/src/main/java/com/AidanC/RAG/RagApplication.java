@@ -4,15 +4,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.config.TikaFileReaderConfig;
+import org.springframework.shell.command.annotation.CommandScan;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+@CommandScan
 @SpringBootApplication
 public class RagApplication implements CommandLineRunner {
 
@@ -47,11 +49,16 @@ private Resource bankStatement;
     @Override
     public void run(String... args) throws IOException {
 //         pdfFileReaderConfig.addResource(pdfResource);
-         tikaFileReaderConfig.addResource(bankStatement);
+//         tikaFileReaderConfig.addResource(bankStatement);
 //         tikaFileReaderConfig.addResource(csvResource);
 //        Path path = Paths.get("src/main/resources/docs/Test.csv");
 //        tikaFileReaderConfig.addResource(path);
 //        tikaFileReaderConfig.processFilesInDirectory(directoryPath);
+//        commandLineRunner();
 
     }
+//    @Bean
+//    CommandLineRunner commandLineRunner() {
+//        return args -> System.out.println("hello ");
+//    }
 }
