@@ -40,14 +40,14 @@ public class ApiCommand {
 
     @ShellMethod("test method")
     public String hitApi(String message) {
-        String response = webClient.post()
+        ApiResponse response = webClient.post()
                 .uri(TEST_URL).
         contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(message)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(ApiResponse.class)
                 .block(); // blocking call for simplicity in CLI app
-        return "Response: " + response;
+        return response != null ? response.getContent() : "No response received";
     }
 }
 
