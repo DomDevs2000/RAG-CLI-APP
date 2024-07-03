@@ -18,33 +18,40 @@ public class ApiCommand {
     public ApiCommand(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
+
     private static final String API_URL = "http://localhost:8080/api/v1/faq"; // predefined URL
 
     private static final String TEST_URL = "http://localhost:8080/api/v1/test";
 
 
-    @Command(command = "api-test")
-    public String test(String message) {
-        return hitApi(message);
+    @Command(command = "faq")
+    public String test() {
+        return getResponse();
     }
 
-//    @Command(command="test")
-//    public String testApi(String message){
-//        String response = restTemplate.postForObject(message, TEST_URL, String.class);
-//        return "Response: " + response;
-//    }
-    @Command(command = "example")
-    public String example(@RequestBody String message) {
-        return hitApi(message);
+    @Command(command = "test")
+    public String example(String message) {
+        return postQuery(message);
     }
 
-    @ShellMethod("test method")
-    public String hitApi(String message) {
+
+    @ShellMethod("test-method")
+    public String postQuery(String message) {
         ApiResponse response = webClient.post()
                 .uri(TEST_URL).
-        contentType(MediaType.APPLICATION_JSON)
+                contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(message)
                 .retrieve()
+                .bodyToMono(ApiResponse.class)
+                .block(); // blocking call for simplicity in CLI app
+        return response != null ? response.getContent() : "No response received";
+    }
+
+    @ShellMethod("get-response")
+    public String getResponse() {
+        ApiResponse response = webClient.get()
+                .uri(API_URL).
+                retrieve()
                 .bodyToMono(ApiResponse.class)
                 .block(); // blocking call for simplicity in CLI app
         return response != null ? response.getContent() : "No response received";
