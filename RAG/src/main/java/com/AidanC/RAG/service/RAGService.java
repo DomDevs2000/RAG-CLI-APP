@@ -51,6 +51,8 @@ public class RAGService {
         return similarDocuments.stream().map(Document::getContent).toList();
     }
 }
+
+// Alternate simiilarity search implementation (harder to read - no top k result -- OLD
 //        List<Document> documents = this.vectorStore.similaritySearch(message);
 //        String collect = documents.stream().map(Document::getContent)
 //                .collect(Collectors.joining(System.lineSeparator()));
