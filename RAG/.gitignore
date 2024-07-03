@@ -32,5 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-
+RAG.log
+./RAG.log
 ./src/main/resources/data/vectorstore.json
