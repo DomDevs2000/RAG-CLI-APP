@@ -15,10 +15,10 @@ public class ApiCommand {
         this.webClient = webClientBuilder.build();
     }
 
-    private static final String API_URL = "http://localhost:8080/api/v1/faq";
+    private static final String API_URL = "http://35.177.40.177:8080/api/v1/faq";
 
-    private static final String TEST_URL = "http://localhost:8080/api/v1/test";
-
+    private static final String TEST_URL = "http://35.177.40.177:8080/api/v1/test";
+// private static final String LOCAL_URL = "http://localhost:8080/api/v1/test";
 
     @Command(command = "faq")
     public String test() {
@@ -27,7 +27,6 @@ public class ApiCommand {
 
     @Command(command = "test")
     public String example(String message) {
-
         ApiResponse response = webClient.post()
                 .uri(TEST_URL).
                 contentType(MediaType.APPLICATION_JSON)
