@@ -24,7 +24,7 @@ public class RAGController {
 
     @GetMapping("/faq")
     public ResponseEntity<RAGResponse> generateAnswer(
-            @RequestParam(value = "message", defaultValue = "in bankstatements.csv on january 1st 2022, what was the opening balance") String message) {
+            @RequestParam(value = "message", defaultValue = "On January 1st 2023, what was the opening balance?") String message) {
         String responseContent = ragService.getAnswer(message);
         RAGResponse ragResponse = new RAGResponse(responseContent);
         return ResponseEntity.ok(ragResponse);

@@ -18,19 +18,12 @@ public class RagApplication implements  CommandLineRunner {
 
     private final PdfFileReaderConfig pdfFileReaderConfig;
 
-    @Value("classpath:/docs/MScProjectHandbook.pdf")
-    private Resource pdfResource;
 
-    @Value("classpath:/docs/Test.csv")
+    @Value("classpath:/docs/bank_statement.csv")
     private Resource csvResource;
 
-
-
-@Value("classpath:/docs/bankstatements.csv")
-private Resource bankStatement;
-
-    @Value("src/main/resources/docs/")
-    private String directoryPath;
+    @Value("classpath:/docs/test_statement.csv")
+    private Resource bankStatement;
 
 
     public RagApplication(TikaFileReaderConfig tikaFileReaderConfig, PdfFileReaderConfig pdfFileReaderConfig) {
@@ -44,12 +37,6 @@ private Resource bankStatement;
 
     @Override
     public void run(String... args) throws IOException {
-//         pdfFileReaderConfig.addResource(pdfResource);
-//         tikaFileReaderConfig.addResource(bankStatement);
-//         tikaFileReaderConfig.addResource(csvResource);
-//        Path path = Paths.get("src/main/resources/docs/Test.csv");
-//        tikaFileReaderConfig.addResource(path);
-//        tikaFileReaderConfig.processFilesInDirectory(directoryPath);
-
+         tikaFileReaderConfig.addResource(csvResource);
     }
 }
