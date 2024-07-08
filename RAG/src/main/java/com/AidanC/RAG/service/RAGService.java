@@ -21,6 +21,10 @@ public class RAGService {
     private final PgVectorStore vectorStore;
     private final Resource ragPromptTemplate;
 
+
+    @Value("classpath:/prompts/budget-template.st")
+    private Resource budgetTemplate;
+
     @Autowired
     public RAGService(ChatClient chatClient, PgVectorStore vectorStore,
                       @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
@@ -29,6 +33,18 @@ public class RAGService {
         this.ragPromptTemplate = ragPromptTemplate;
     }
 
+
+    public String budget(String message){
+        PromptTemplate promptTemplate = new PromptTemplate(budgetTemplate);
+        Map<String, Object> promptParameters = new HashMap<>();
+        promptParameters.put("input", message);
+        promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
+
+        return chatClient.call(promptTemplate.create(promptParameters))
+                .getResult()
+                .getOutput().
+                getContent();
+    }
     public String getAnswer(String message) {
         PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
         Map<String, Object> promptParameters = new HashMap<>();

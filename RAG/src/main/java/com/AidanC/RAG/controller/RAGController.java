@@ -22,19 +22,27 @@ public class RAGController {
         this.ragService = ragService;
     }
 
-    @GetMapping("/faq")
+    @GetMapping("/opening-balance")
     public ResponseEntity<RAGResponse> generateAnswer(
-            @RequestParam(value = "message", defaultValue = "On January 1st 2023, what was the opening balance?") String message) {
+            @RequestParam(value = "message", defaultValue = "What was the opening balance each month of 2023 ") String message) {
         String responseContent = ragService.getAnswer(message);
-        RAGResponse ragResponse = new RAGResponse(responseContent);
-        return ResponseEntity.ok(ragResponse);
+        RAGResponse OBResponse = new RAGResponse(responseContent);
+        return ResponseEntity.ok(OBResponse);
     }
 
-    @PostMapping("/test")
+    @PostMapping("/chat")
     public ResponseEntity<RAGResponse> test(@RequestBody String message) {
         String responseContent = ragService.getAnswer(message);
-        RAGResponse faqResponse = new RAGResponse(responseContent);
-        return ResponseEntity.ok(faqResponse);
+        RAGResponse chatResponse = new RAGResponse(responseContent);
+        return ResponseEntity.ok(chatResponse);
 
+    }
+
+    @GetMapping("/budget")
+    public ResponseEntity<RAGResponse> budget(
+            @RequestParam(value = "message", defaultValue = "Based on the monthly outgoings, what cost can be cut down to help save money") String message) {
+        String responseContent = ragService.budget(message);
+        RAGResponse budgetResponse = new RAGResponse(responseContent);
+        return ResponseEntity.ok(budgetResponse);
     }
 }
