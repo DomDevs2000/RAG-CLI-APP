@@ -10,5 +10,7 @@ ENTRYPOINT ["java", "-jar", "RAG-0.0.1-SNAPSHOT.jar"]
 ADD target/RAG-0.0.1-SNAPSHOT.jar RAG-0.0.1-SNAPSHOT.jar
 
 
-# docker build --build-arg SPRING_AI_OPENAI_API_KEY=$OPENAI_API_KEY --build-arg SPRING_DATASOURCE_PASSWORD=$POSTGRES_PASS -t rag-api . 
+# docker build --build-arg SPRING_AI_OPENAI_API_KEY=$OPENAI_API_KEY --build-arg SPRING_DATASOURCE_PASSWORD=$POSTGRES_PASS -t rag_api .
+# docker tag rag_api:latest 339713138947.dkr.ecr.eu-west-2.amazonaws.com/rag_api:latest
+# docker push 339713138947.dkr.ecr.eu-west-2.amazonaws.com/rag_api:latest
 
