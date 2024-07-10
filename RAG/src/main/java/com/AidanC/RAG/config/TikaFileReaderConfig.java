@@ -39,11 +39,11 @@ public class TikaFileReaderConfig {
     }
 
     public void addResource(Path path) throws IllegalArgumentException {
-            log.info("Adding Resource...");
-            Resource resource = new FileSystemResource(path.toFile());
-            TikaDocumentReader tikaDocumentReaderConfig = new TikaDocumentReader(resource);
-            TokenTextSplitter textSplitter = new TokenTextSplitter();
-            vectorStore.accept(textSplitter.apply(tikaDocumentReaderConfig.get()));
+        log.info("Adding Resource...");
+        Resource resource = new FileSystemResource(path.toFile());
+        TikaDocumentReader tikaDocumentReaderConfig = new TikaDocumentReader(resource);
+        TokenTextSplitter textSplitter = new TokenTextSplitter();
+        vectorStore.accept(textSplitter.apply(tikaDocumentReaderConfig.get()));
         log.info("Finished processing file: {}", path);
     }
 

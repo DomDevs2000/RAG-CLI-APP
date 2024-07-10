@@ -21,20 +21,18 @@ public class RAGService {
     private final PgVectorStore vectorStore;
     private final Resource ragPromptTemplate;
 
-
     @Value("classpath:/prompts/budget-template.st")
     private Resource budgetTemplate;
 
     @Autowired
     public RAGService(ChatClient chatClient, PgVectorStore vectorStore,
-                      @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
+            @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
         this.chatClient = chatClient;
         this.vectorStore = vectorStore;
         this.ragPromptTemplate = ragPromptTemplate;
     }
 
-
-    public String budget(String message){
+    public String budget(String message) {
         PromptTemplate promptTemplate = new PromptTemplate(budgetTemplate);
         Map<String, Object> promptParameters = new HashMap<>();
         promptParameters.put("input", message);
@@ -42,9 +40,9 @@ public class RAGService {
 
         return chatClient.call(promptTemplate.create(promptParameters))
                 .getResult()
-                .getOutput().
-                getContent();
+                .getOutput().getContent();
     }
+
     public String getAnswer(String message) {
         PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
         Map<String, Object> promptParameters = new HashMap<>();
@@ -63,19 +61,20 @@ public class RAGService {
     }
 }
 
-// Alternate simiilarity search implementation (harder to read - no top k result -- OLD
-//        List<Document> documents = this.vectorStore.similaritySearch(message);
-//        String collect = documents.stream().map(Document::getContent)
-//                .collect(Collectors.joining(System.lineSeparator()));
+// Alternate simiilarity search implementation (harder to read - no top k result
+// -- OLD
+// List<Document> documents = this.vectorStore.similaritySearch(message);
+// String collect = documents.stream().map(Document::getContent)
+// .collect(Collectors.joining(System.lineSeparator()));
 //
-//        PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
-//        Map<String, Object> promptParameters = new HashMap<>();
-//        promptParameters.put("input", message);
-//        promptParameters.put("documents", String.join("\n", collect));
+// PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
+// Map<String, Object> promptParameters = new HashMap<>();
+// promptParameters.put("input", message);
+// promptParameters.put("documents", String.join("\n", collect));
 //
-//        Prompt prompt = promptTemplate.create(promptParameters);
-//        return chatClient.call(prompt).getResults().stream().map(generation -> {
-//            return generation.getOutput().getContent();
-//        }).collect(Collectors.joining("/n"));
-//    }
-//}
+// Prompt prompt = promptTemplate.create(promptParameters);
+// return chatClient.call(prompt).getResults().stream().map(generation -> {
+// return generation.getOutput().getContent();
+// }).collect(Collectors.joining("/n"));
+// }
+// }
