@@ -61,20 +61,3 @@ public class RAGService {
     }
 }
 
-// Alternate simiilarity search implementation (harder to read - no top k result
-// -- OLD
-// List<Document> documents = this.vectorStore.similaritySearch(message);
-// String collect = documents.stream().map(Document::getContent)
-// .collect(Collectors.joining(System.lineSeparator()));
-//
-// PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
-// Map<String, Object> promptParameters = new HashMap<>();
-// promptParameters.put("input", message);
-// promptParameters.put("documents", String.join("\n", collect));
-//
-// Prompt prompt = promptTemplate.create(promptParameters);
-// return chatClient.call(prompt).getResults().stream().map(generation -> {
-// return generation.getOutput().getContent();
-// }).collect(Collectors.joining("/n"));
-// }
-// }

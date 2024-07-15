@@ -44,14 +44,14 @@ public class ApiCommand {
 
     @ShellMethod("test-method")
     public String postQuery(String message) {
-
         ApiResponse response = webClient.post()
                 .uri(TEST_URL).contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(message)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
-                .block(); // blocking call for simplicity in CLI app
+                .block();
         return response != null ? response.getContent() : "No response received";
+
     }
 
     @ShellMethod("get-response")
@@ -59,7 +59,7 @@ public class ApiCommand {
         ApiResponse response = webClient.get()
                 .uri(API_URL).retrieve()
                 .bodyToMono(ApiResponse.class)
-                .block(); // blocking call for simplicity in CLI app
+                .block();
         return response != null ? response.getContent() : "No response received";
     }
 }
