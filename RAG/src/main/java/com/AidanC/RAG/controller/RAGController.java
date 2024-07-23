@@ -66,7 +66,7 @@ public class RAGController {
                 }
                 pdfFileReaderConfig.addResource(pdfResource);
             }
-            return ResponseEntity.ok("File Processing Started - Be Patien This May Take A While.");
+            return ResponseEntity.ok("File Processing Started - Be Patient This May Take A While.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
