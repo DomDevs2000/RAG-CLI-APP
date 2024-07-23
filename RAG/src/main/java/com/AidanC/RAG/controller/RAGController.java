@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.AidanC.RAG.config.PdfFileReaderConfig;
+import com.AidanC.RAG.model.FilePathRequest;
 import com.AidanC.RAG.model.RAGResponse;
 import com.AidanC.RAG.service.RAGService;
 
@@ -72,15 +73,4 @@ public class RAGController {
         }
     }
 
-    public static class FilePathRequest {
-        private String filePath;
-
-        public String getFilePath() {
-            return filePath;
-        }
-
-        public void setFilePath(String filePath) {
-            this.filePath = filePath;
-        }
-    }
 }
