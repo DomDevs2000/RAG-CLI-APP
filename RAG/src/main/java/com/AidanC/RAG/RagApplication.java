@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.config.TikaFileReaderConfig;
@@ -12,6 +13,7 @@ import com.AidanC.RAG.config.TikaFileReaderConfig;
 import java.io.IOException;
 
 @SpringBootApplication
+@EnableAsync
 public class RagApplication implements CommandLineRunner {
 
     private final TikaFileReaderConfig tikaFileReaderConfig;
