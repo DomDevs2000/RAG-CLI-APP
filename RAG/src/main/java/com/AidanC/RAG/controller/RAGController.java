@@ -1,11 +1,11 @@
 package com.AidanC.RAG.controller;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.model.FilePathRequest;
 import com.AidanC.RAG.model.RAGResponse;
@@ -60,15 +59,21 @@ public class RAGController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestBody List<FilePathRequest> requests) {
-        for (FilePathRequest request : requests) {
-            String resourcePath = "docs/" + request.getFilePath().trim(); // Assuming files are in 'resources/docs'
-                                                                          // directory
-            Resource pdfResource = new ClassPathResource(resourcePath);
-            if (!pdfResource.exists()) {
-                return ResponseEntity.badRequest().body("File does not exist: " + resourcePath);
+        try {
+            for (FilePathRequest request : requests) {
+                String resourcePath = "docs/" + request.getFilePath().trim();
+                Resource pdfResource = new ClassPathResource(resourcePath);
+                if (!pdfResource.exists()) {
+                    return ResponseEntity.badRequest().body("File does not exist: " +
+                            resourcePath);
+                }
+                pdfFileReaderConfig.addResource(pdfResource);
             }
-            pdfFileReaderConfig.addResource(pdfResource);
+            return ResponseEntity.ok("File processing started...Please be patient this may take a while.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while processing the files: " + e.getMessage());
         }
-        return ResponseEntity.ok("File processing started.");
     }
 }
