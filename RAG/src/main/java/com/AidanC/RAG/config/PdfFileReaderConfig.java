@@ -9,6 +9,7 @@ import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,6 +22,7 @@ public class PdfFileReaderConfig {
         this.vectorStore = vectorStore;
     }
 
+    @Async("Executor")
     public void addResource(Resource pdfResource) {
         long startTime = System.currentTimeMillis();
         try {

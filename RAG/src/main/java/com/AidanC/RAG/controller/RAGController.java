@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.model.FilePathRequest;
 import com.AidanC.RAG.model.RAGResponse;
@@ -58,19 +59,16 @@ public class RAGController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestBody FilePathRequest request) {
-        try {
+    public ResponseEntity<String> upload(@RequestBody List<FilePathRequest> requests) {
+        for (FilePathRequest request : requests) {
             String resourcePath = "docs/" + request.getFilePath().trim(); // Assuming files are in 'resources/docs'
                                                                           // directory
             Resource pdfResource = new ClassPathResource(resourcePath);
             if (!pdfResource.exists()) {
-                return ResponseEntity.badRequest().body("File does not exist.");
+                return ResponseEntity.badRequest().body("File does not exist: " + resourcePath);
             }
             pdfFileReaderConfig.addResource(pdfResource);
-            return ResponseEntity.ok("File processed successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error processing file: " + e.getMessage());
         }
+        return ResponseEntity.ok("File processing started.");
     }
-
 }
