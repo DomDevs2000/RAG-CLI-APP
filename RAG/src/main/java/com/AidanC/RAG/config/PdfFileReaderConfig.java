@@ -22,6 +22,7 @@ public class PdfFileReaderConfig {
     }
 
     public void addResource(Resource pdfResource) {
+        long startTime = System.currentTimeMillis();
         try {
             log.info("Adding resource...");
             PdfDocumentReaderConfig pdfDocumentReaderConfig = PdfDocumentReaderConfig.builder()
@@ -33,6 +34,9 @@ public class PdfFileReaderConfig {
             log.info("Finished processing file: {}", pdfResource);
         } catch (Exception e) {
             log.error("Error processing PDF resource: ", e);
+        } finally {
+            long endTime = System.currentTimeMillis();
+            log.info("Processing time: {} ms", (endTime - startTime));
         }
     }
 }
