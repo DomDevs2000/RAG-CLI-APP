@@ -22,13 +22,17 @@ public class PdfFileReaderConfig {
     }
 
     public void addResource(Resource pdfResource) {
-        log.info("adding resource...");
-        PdfDocumentReaderConfig pdfDocumentReaderConfig = PdfDocumentReaderConfig.builder()
-                .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build()).build();
-        PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
-        TokenTextSplitter textSplitter = new TokenTextSplitter();
-        vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
-        log.info("Finished processing file: {}", pdfResource);
-
+        try {
+            log.info("Adding resource...");
+            PdfDocumentReaderConfig pdfDocumentReaderConfig = PdfDocumentReaderConfig.builder()
+                    .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build()).build();
+            PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource,
+                    pdfDocumentReaderConfig);
+            TokenTextSplitter textSplitter = new TokenTextSplitter();
+            vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
+            log.info("Finished processing file: {}", pdfResource);
+        } catch (Exception e) {
+            log.error("Error processing PDF resource: ", e);
+        }
     }
 }

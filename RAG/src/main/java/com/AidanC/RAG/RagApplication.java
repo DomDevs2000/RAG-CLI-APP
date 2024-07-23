@@ -21,6 +21,9 @@ public class RagApplication implements CommandLineRunner {
     @Value("classpath:/docs/bank_statement.csv")
     private Resource csvResource;
 
+    @Value("classpath:/docs/McDonalds_AnnualReport_2023.pdf")
+    private Resource report;
+
     @Value("classpath:/docs/test_statement.csv")
     private Resource bankStatement;
 
@@ -35,6 +38,8 @@ public class RagApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws IOException {
-        tikaFileReaderConfig.addResource(csvResource);
+        System.out.println("Application Running...");
+        // pdfFileReaderConfig.addResource(report);
+        // tikaFileReaderConfig.addResource(csvResource);
     }
 }

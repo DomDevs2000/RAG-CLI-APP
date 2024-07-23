@@ -1,6 +1,12 @@
 package com.AidanC.RAG.controller;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.model.RAGResponse;
 import com.AidanC.RAG.service.RAGService;
 
@@ -17,10 +24,12 @@ import com.AidanC.RAG.service.RAGService;
 public class RAGController {
 
     private final RAGService ragService;
+    private final PdfFileReaderConfig pdfFileReaderConfig;
 
     @Autowired
-    public RAGController(RAGService ragService) {
+    public RAGController(RAGService ragService, PdfFileReaderConfig pdfFileReaderConfig) {
         this.ragService = ragService;
+        this.pdfFileReaderConfig = pdfFileReaderConfig;
     }
 
     @GetMapping("/opening-balance")
@@ -45,5 +54,33 @@ public class RAGController {
         String responseContent = ragService.budget(message);
         RAGResponse budgetResponse = new RAGResponse(responseContent);
         return ResponseEntity.ok(budgetResponse);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> upload(@RequestBody FilePathRequest request) {
+        try {
+            String resourcePath = "docs/" + request.getFilePath().trim(); // Assuming files are in 'resources/docs'
+                                                                          // directory
+            Resource pdfResource = new ClassPathResource(resourcePath);
+            if (!pdfResource.exists()) {
+                return ResponseEntity.badRequest().body("File does not exist.");
+            }
+            pdfFileReaderConfig.addResource(pdfResource);
+            return ResponseEntity.ok("File processed successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error processing file: " + e.getMessage());
+        }
+    }
+
+    public static class FilePathRequest {
+        private String filePath;
+
+        public String getFilePath() {
+            return filePath;
+        }
+
+        public void setFilePath(String filePath) {
+            this.filePath = filePath;
+        }
     }
 }
