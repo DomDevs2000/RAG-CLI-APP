@@ -33,5 +33,8 @@ build/
 .vscode/
 
 RAG.log
+CLI.LOG
+./CLI.log
 ./RAG.log
+./src/main/resources/docs/*
 ./src/main/resources/data/vectorstore.json
