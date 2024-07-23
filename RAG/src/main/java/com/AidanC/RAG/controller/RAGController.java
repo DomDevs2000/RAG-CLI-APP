@@ -1,9 +1,6 @@
 package com.AidanC.RAG.controller;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -69,7 +66,7 @@ public class RAGController {
                 }
                 pdfFileReaderConfig.addResource(pdfResource);
             }
-            return ResponseEntity.ok("File processing started...Please be patient this may take a while.");
+            return ResponseEntity.ok("File Processing Started - Be Patien This May Take A While.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
