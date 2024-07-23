@@ -38,3 +38,4 @@ CLI.LOG
 ./RAG.log
 ./src/main/resources/docs/*
 ./src/main/resources/data/vectorstore.json
+src/main/resources/docs/*
