@@ -21,9 +21,6 @@ public class RAGService {
     private final PgVectorStore vectorStore;
     private final Resource ragPromptTemplate;
 
-    @Value("classpath:/prompts/budget-template.st")
-    private Resource budgetTemplate;
-
     @Autowired
     public RAGService(ChatClient chatClient, PgVectorStore vectorStore,
             @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
