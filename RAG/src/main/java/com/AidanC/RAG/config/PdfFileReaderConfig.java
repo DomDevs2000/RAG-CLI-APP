@@ -1,7 +1,5 @@
 package com.AidanC.RAG.config;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.reader.ExtractedTextFormatter;
@@ -11,7 +9,6 @@ import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,8 +25,8 @@ public class PdfFileReaderConfig {
         // Test Results Processing 5 large very large PDFs - some over 150 Pages
         // Completeable Future Concurrect File Process Time -> 3-3.5 Mins
         // Normal Async File Process Time -> 3 mins
-        // Non Concurrect Process Time -> 8.5 mins
-        // Virtual Thread Process Time -> 2.5 mins
+        // Non Concurrect File Process Time -> 8.5 mins
+        // Virtual Thread File Process Time -> 2.5 mins
         long startTime = System.currentTimeMillis();
         String threadName = Thread.currentThread().getName();
         try {
