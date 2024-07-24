@@ -1,5 +1,7 @@
 package com.AidanC.RAG.config;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.reader.ExtractedTextFormatter;
@@ -22,12 +24,12 @@ public class PdfFileReaderConfig {
         this.vectorStore = vectorStore;
     }
 
-    @Async("Executor")
-    public void addResource(Resource pdfResource) throws InterruptedException {
+    public void addResource(Resource pdfResource) {
         // Test Results Processing 5 large very large PDFs - some over 150 Pages
         // Completeable Future Concurrect File Process Time -> 3-3.5 Mins
         // Normal Async File Process Time -> 3 mins
         // Non Concurrect Process Time -> 8.5 mins
+        // Virtual Thread Process Time -> 2.5 mins
         long startTime = System.currentTimeMillis();
         String threadName = Thread.currentThread().getName();
         try {
@@ -38,8 +40,7 @@ public class PdfFileReaderConfig {
                     pdfDocumentReaderConfig);
             TokenTextSplitter textSplitter = new TokenTextSplitter();
             vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
-            log.info("[{}] Finished processing file: {}", threadName,
-                    pdfResource.getFilename());
+            log.info("[{}] Finished processing file: {}", threadName, pdfResource.getFilename());
         } catch (Exception e) {
             log.error("[{}] Error processing PDF resource: ", threadName, e);
         } finally {

@@ -1,6 +1,9 @@
 package com.AidanC.RAG.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -57,16 +60,17 @@ public class RAGController {
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestBody List<FilePathRequest> requests) {
         try {
+
             for (FilePathRequest request : requests) {
                 String resourcePath = "docs/" + request.getFilePath().trim();
                 Resource pdfResource = new ClassPathResource(resourcePath);
                 if (!pdfResource.exists()) {
-                    return ResponseEntity.badRequest().body("File does not exist: " +
-                            resourcePath);
+                    return ResponseEntity.badRequest().body("File does not exist: " + resourcePath);
                 }
-                pdfFileReaderConfig.addResource(pdfResource);
+                Thread.ofVirtual().start(() -> pdfFileReaderConfig.addResource(pdfResource));
             }
-            return ResponseEntity.ok("File Processing Started - Be Patient This May Take A While.");
+
+            return ResponseEntity.ok("Files Are Being Processed - Please Be Patient This May Take A While.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
