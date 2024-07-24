@@ -32,17 +32,6 @@ public class RAGService {
         this.ragPromptTemplate = ragPromptTemplate;
     }
 
-    public String budget(String message) {
-        PromptTemplate promptTemplate = new PromptTemplate(budgetTemplate);
-        Map<String, Object> promptParameters = new HashMap<>();
-        promptParameters.put("input", message);
-        promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
-
-        return chatClient.call(promptTemplate.create(promptParameters))
-                .getResult()
-                .getOutput().getContent();
-    }
-
     public String getAnswer(String message) {
         PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
         Map<String, Object> promptParameters = new HashMap<>();
@@ -60,4 +49,3 @@ public class RAGService {
         return similarDocuments.stream().map(Document::getContent).toList();
     }
 }
-
