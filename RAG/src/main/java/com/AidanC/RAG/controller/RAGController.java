@@ -2,6 +2,7 @@ package com.AidanC.RAG.controller;
 
 import java.util.List;
 
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -33,6 +34,13 @@ public class RAGController {
     public ResponseEntity<RAGResponse> test(@RequestBody String message) {
         String responseContent = ragService.getAnswer(message);
         RAGResponse chatResponse = new RAGResponse(responseContent);
+        return ResponseEntity.ok(chatResponse);
+
+    }
+
+    @PostMapping("/metadata")
+    public ResponseEntity<ChatResponse> metadata(@RequestBody String message) {
+        ChatResponse chatResponse = ragService.getMetadata(message);
         return ResponseEntity.ok(chatResponse);
 
     }

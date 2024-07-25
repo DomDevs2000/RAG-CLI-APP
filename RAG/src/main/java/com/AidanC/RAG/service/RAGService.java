@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.PgVectorStore;
@@ -13,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
+import org.springframework.ai.chat.model.ChatResponse;
 @Service
 public class RAGService {
 
@@ -34,11 +35,16 @@ public class RAGService {
         Map<String, Object> promptParameters = new HashMap<>();
         promptParameters.put("input", message);
         promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
-
-        return chatClient.call(promptTemplate.create(promptParameters))
-                .getResult()
-                .getOutput()
-                .getContent();
+        Prompt prompt = promptTemplate.create(promptParameters);
+        return chatClient.prompt(prompt).call().content();
+    }
+ public ChatResponse getMetadata(String message) {
+        PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
+        Map<String, Object> promptParameters = new HashMap<>();
+        promptParameters.put("input", message);
+        promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
+        Prompt prompt = promptTemplate.create(promptParameters);
+        return chatClient.prompt(prompt).call().chatResponse();
     }
 
     private List<String> findSimilarDocuments(String message) {
