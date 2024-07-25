@@ -2,15 +2,13 @@ package com.AidanC.LLMGPT.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.AidanC.LLMGPT.service.LLMGPTService;
-
-import com.AidanC.LLMGPT.model.ChatResponse;
+import com.AidanC.LLMGPT.model.LLMGPTResponse;
 import groovy.util.logging.Slf4j;
 
 @RestController
@@ -24,9 +22,9 @@ public class LLMGPTController {
   }
 
   @PostMapping("/chat")
-  public ResponseEntity<ChatResponse> test(@RequestBody String message) {
+  public ResponseEntity<LLMGPTResponse> test(@RequestBody String message) {
     String responseContent = llmgptService.chat(message);
-    ChatResponse chatResponse = new ChatResponse();
+    LLMGPTResponse chatResponse = new LLMGPTResponse();
     chatResponse.setContent(responseContent);
     return ResponseEntity.ok(chatResponse);
   }

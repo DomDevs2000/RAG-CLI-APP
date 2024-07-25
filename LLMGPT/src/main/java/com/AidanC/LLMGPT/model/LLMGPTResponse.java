@@ -1,6 +1,6 @@
 package com.AidanC.LLMGPT.model;
 
-public class ChatResponse {
+public class LLMGPTResponse {
     private String content;
 
     public String getContent() {
