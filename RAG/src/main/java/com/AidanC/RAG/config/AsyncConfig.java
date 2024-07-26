@@ -16,8 +16,6 @@ public class AsyncConfig implements AsyncConfigurer {
   public Executor taskExecutor() {
     int coreCount = Runtime.getRuntime().availableProcessors();
     int threadCount = coreCount * 2;
-    System.out.println(coreCount);
-    System.out.println(threadCount);
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(threadCount);
     executor.setMaxPoolSize(threadCount);
