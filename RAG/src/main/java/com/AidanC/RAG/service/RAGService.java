@@ -3,7 +3,6 @@ package com.AidanC.RAG.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -24,7 +23,9 @@ public class RAGService {
     private final Resource ragPromptTemplate;
 
     @Autowired
-    public RAGService(ChatClient chatClient, PgVectorStore vectorStore,
+    public RAGService(
+            ChatClient chatClient,
+            PgVectorStore vectorStore,
             @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
         this.chatClient = chatClient;
         this.vectorStore = vectorStore;
