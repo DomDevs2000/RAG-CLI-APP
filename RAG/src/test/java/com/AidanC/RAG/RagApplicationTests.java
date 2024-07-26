@@ -53,7 +53,6 @@ public class RagApplicationTests {
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
 
     System.out.printf("Test Data Relevant To Document: %s%n ", evaluationResponse);
-    System.out.println(evaluationResponse);
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
   }
 
