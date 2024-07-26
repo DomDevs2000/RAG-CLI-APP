@@ -29,7 +29,7 @@ public class RAGController {
   }
 
   @PostMapping("/chat")
-  public ResponseEntity<RAGResponse> test(@RequestBody String message) {
+  public ResponseEntity<RAGResponse> chat(@RequestBody String message) {
     String responseContent = ragService.getAnswer(message);
     RAGResponse chatResponse = new RAGResponse(responseContent);
     return ResponseEntity.ok(chatResponse);
