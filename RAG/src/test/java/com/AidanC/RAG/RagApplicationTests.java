@@ -23,9 +23,11 @@ import org.springframework.core.io.Resource;
 @SpringBootTest
 public class RagApplicationTests {
 
-  @Autowired private ChatModel chatModel;
+  @Autowired
+  private ChatModel chatModel;
 
-  @Autowired private PgVectorStore vectorStore;
+  @Autowired
+  private PgVectorStore vectorStore;
 
   @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
   private Resource pdfResource;
@@ -35,21 +37,19 @@ public class RagApplicationTests {
     // Query relative to document
     String userText = "What is Apple's 2023 total revenue?";
 
-    ChatResponse response =
-        ChatClient.builder(chatModel)
-            .build()
-            .prompt()
-            .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
-            .user(userText)
-            .call()
-            .chatResponse();
+    ChatResponse response = ChatClient.builder(chatModel)
+        .build()
+        .prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .user(userText)
+        .call()
+        .chatResponse();
 
     var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(chatModel));
-    EvaluationRequest evaluationRequest =
-        new EvaluationRequest(
-            userText,
-            (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-            response);
+    EvaluationRequest evaluationRequest = new EvaluationRequest(
+        userText,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
+        response);
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
 
     System.out.printf("Test Data Relevant To Document: %s%n ", evaluationResponse);
@@ -62,21 +62,19 @@ public class RagApplicationTests {
     // query not relevant to document;
     String userText = "What is Apple's 2019 revenue?";
 
-    ChatResponse response =
-        ChatClient.builder(chatModel)
-            .build()
-            .prompt()
-            .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
-            .user(userText)
-            .call()
-            .chatResponse();
+    ChatResponse response = ChatClient.builder(chatModel)
+        .build()
+        .prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .user(userText)
+        .call()
+        .chatResponse();
 
     var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(chatModel));
-    EvaluationRequest evaluationRequest =
-        new EvaluationRequest(
-            userText,
-            (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-            response);
+    EvaluationRequest evaluationRequest = new EvaluationRequest(
+        userText,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
+        response);
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
 
     System.out.printf("Test Data Not Relevant To Document: %s%n ", evaluationResponse);
