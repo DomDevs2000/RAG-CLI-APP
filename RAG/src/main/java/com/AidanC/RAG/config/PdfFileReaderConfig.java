@@ -13,36 +13,38 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PdfFileReaderConfig {
-    private final VectorStore vectorStore;
+  private final VectorStore vectorStore;
 
-    private static final Logger log = LoggerFactory.getLogger(PdfFileReaderConfig.class);
+  private static final Logger log = LoggerFactory.getLogger(PdfFileReaderConfig.class);
 
-    public PdfFileReaderConfig(PgVectorStore vectorStore) {
-        this.vectorStore = vectorStore;
+  public PdfFileReaderConfig(PgVectorStore vectorStore) {
+    this.vectorStore = vectorStore;
+  }
+
+  public void addResource(Resource pdfResource) {
+    // Test Results Processing 5 large very large PDFs - some over 150 Pages
+    // Completeable Future Concurrect File Process Time -> 3-3.5 Mins
+    // Normal Async File Process Time -> 3 mins
+    // Non Concurrect File Process Time -> 8.5 mins
+    // Virtual Thread File Process Time -> 2.5 mins
+    long startTime = System.currentTimeMillis();
+    String threadName = Thread.currentThread().getName();
+    try {
+      log.info("[{}] Adding resource: {}", threadName, pdfResource.getFilename());
+      PdfDocumentReaderConfig pdfDocumentReaderConfig =
+          PdfDocumentReaderConfig.builder()
+              .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build())
+              .build();
+      PagePdfDocumentReader pagePdfDocumentReader =
+          new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
+      TokenTextSplitter textSplitter = new TokenTextSplitter();
+      vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
+      log.info("[{}] Finished processing file: {}", threadName, pdfResource.getFilename());
+    } catch (Exception e) {
+      log.error("[{}] Error processing PDF resource: ", threadName, e);
+    } finally {
+      long endTime = System.currentTimeMillis();
+      log.info("[{}] Processing time: {} ms", threadName, (endTime - startTime));
     }
-
-    public void addResource(Resource pdfResource) {
-        // Test Results Processing 5 large very large PDFs - some over 150 Pages
-        // Completeable Future Concurrect File Process Time -> 3-3.5 Mins
-        // Normal Async File Process Time -> 3 mins
-        // Non Concurrect File Process Time -> 8.5 mins
-        // Virtual Thread File Process Time -> 2.5 mins
-        long startTime = System.currentTimeMillis();
-        String threadName = Thread.currentThread().getName();
-        try {
-            log.info("[{}] Adding resource: {}", threadName, pdfResource.getFilename());
-            PdfDocumentReaderConfig pdfDocumentReaderConfig = PdfDocumentReaderConfig.builder()
-                    .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build()).build();
-            PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource,
-                    pdfDocumentReaderConfig);
-            TokenTextSplitter textSplitter = new TokenTextSplitter();
-            vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
-            log.info("[{}] Finished processing file: {}", threadName, pdfResource.getFilename());
-        } catch (Exception e) {
-            log.error("[{}] Error processing PDF resource: ", threadName, e);
-        } finally {
-            long endTime = System.currentTimeMillis();
-            log.info("[{}] Processing time: {} ms", threadName, (endTime - startTime));
-        }
-    }
+  }
 }

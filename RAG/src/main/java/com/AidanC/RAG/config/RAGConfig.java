@@ -10,15 +10,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 public class RAGConfig {
 
-    @Bean
-    public ChatClient chatClient(ChatClient.Builder builder) {
-        return builder.defaultSystem("Test").build();
-    }
+  @Bean
+  public ChatClient chatClient(ChatClient.Builder builder) {
+    return builder.defaultSystem("Test").build();
+  }
 
-    @Bean
-    public PgVectorStore vectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
-        PgVectorStore vectorStore = new PgVectorStore(jdbcTemplate, embeddingModel);
-        return vectorStore;
-
-    }
+  @Bean
+  public PgVectorStore vectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
+    PgVectorStore vectorStore = new PgVectorStore(jdbcTemplate, embeddingModel);
+    return vectorStore;
+  }
 }
