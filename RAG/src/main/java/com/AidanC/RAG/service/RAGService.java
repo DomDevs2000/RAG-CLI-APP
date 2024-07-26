@@ -18,40 +18,41 @@ import org.springframework.stereotype.Service;
 @Service
 public class RAGService {
 
-    private final ChatClient chatClient;
-    private final PgVectorStore vectorStore;
-    private final Resource ragPromptTemplate;
+  private final ChatClient chatClient;
+  private final PgVectorStore vectorStore;
+  private final Resource ragPromptTemplate;
 
-    @Autowired
-    public RAGService(
-            ChatClient chatClient,
-            PgVectorStore vectorStore,
-            @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
-        this.chatClient = chatClient;
-        this.vectorStore = vectorStore;
-        this.ragPromptTemplate = ragPromptTemplate;
-    }
+  @Autowired
+  public RAGService(
+      ChatClient chatClient,
+      PgVectorStore vectorStore,
+      @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
+    this.chatClient = chatClient;
+    this.vectorStore = vectorStore;
+    this.ragPromptTemplate = ragPromptTemplate;
+  }
 
-    public String getAnswer(String message) {
-        PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
-        Map<String, Object> promptParameters = new HashMap<>();
-        promptParameters.put("input", message);
-        promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
-        Prompt prompt = promptTemplate.create(promptParameters);
-        return chatClient.prompt(prompt).call().content();
-    }
+  public String getAnswer(String message) {
+    var prompt = createPrompt(message);
+    return chatClient.prompt(prompt).call().content();
+  }
 
-    public ChatResponse getMetadata(String message) {
-        PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
-        Map<String, Object> promptParameters = new HashMap<>();
-        promptParameters.put("input", message);
-        promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
-        Prompt prompt = promptTemplate.create(promptParameters);
-        return chatClient.prompt(prompt).call().chatResponse();
-    }
+  public ChatResponse getMetadata(String message) {
+    var prompt = createPrompt(message);
+    return chatClient.prompt(prompt).call().chatResponse();
+  }
 
-    private List<String> findSimilarDocuments(String message) {
-        List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(3));
-        return similarDocuments.stream().map(Document::getContent).toList();
-    }
+  private List<String> findSimilarDocuments(String message) {
+    List<Document> similarDocuments =
+        vectorStore.similaritySearch(SearchRequest.query(message).withTopK(3));
+    return similarDocuments.stream().map(Document::getContent).toList();
+  }
+
+  private Prompt createPrompt(String message) {
+    PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
+    Map<String, Object> promptParameters = new HashMap<>();
+    promptParameters.put("input", message);
+    promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
+    return promptTemplate.create(promptParameters);
+  }
 }
