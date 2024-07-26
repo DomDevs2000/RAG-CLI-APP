@@ -1,7 +1,9 @@
 package com.AidanC.RAG.config;
 
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.ExtractedTextFormatter;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
@@ -31,14 +33,17 @@ public class PdfFileReaderConfig {
     String threadName = Thread.currentThread().getName();
     try {
       log.info("[{}] Adding resource: {}", threadName, pdfResource.getFilename());
-      PdfDocumentReaderConfig pdfDocumentReaderConfig =
-          PdfDocumentReaderConfig.builder()
-              .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build())
-              .build();
-      PagePdfDocumentReader pagePdfDocumentReader =
-          new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
+      PdfDocumentReaderConfig pdfDocumentReaderConfig = PdfDocumentReaderConfig.builder()
+          .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build())
+          .build();
+      PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
       TokenTextSplitter textSplitter = new TokenTextSplitter();
-      vectorStore.accept(textSplitter.apply(pagePdfDocumentReader.get()));
+      List<Document> splitDocuments = textSplitter.apply(pagePdfDocumentReader.get());
+      for (Document splitDocument : splitDocuments) {
+        splitDocument.getMetadata().put("filename", pdfResource.getFilename());
+        splitDocument.getMetadata().put("version", 1);
+      }
+      vectorStore.accept(splitDocuments);
       log.info("[{}] Finished processing file: {}", threadName, pdfResource.getFilename());
     } catch (Exception e) {
       log.error("[{}] Error processing PDF resource: ", threadName, e);
