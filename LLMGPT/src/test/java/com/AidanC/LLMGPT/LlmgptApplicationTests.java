@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -18,7 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class LlmgptApplicationTests {
 	@Autowired
-	private ChatModel chatModel;
+	private OpenAiChatModel chatModel;
 
 	@Test
 	void testPreTrainedEvaluation() {
