@@ -35,7 +35,7 @@ public class RagApplicationTests {
   @Test
   void testValidEvaluation() {
     // Query relative to document
-    String userText = "What is Apple's 2023 total revenue?";
+    String userText = "What is Nvidia's 2023 total revenue?";
 
     ChatResponse response = ChatClient.builder(chatModel)
         .build()
@@ -52,7 +52,6 @@ public class RagApplicationTests {
         response);
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
     System.out.println(response);
-    System.out.println(evaluationResponse.getMetadata());
     System.out.printf("Test Data Relevant To Document: %s%n ", evaluationResponse);
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
   }
@@ -60,7 +59,7 @@ public class RagApplicationTests {
   @Test
   void testFalseEvaluation() {
     // query not relevant to document;
-    String userText = "What is Apple's 2019 revenue?";
+    String userText = "What is Nvidia's 2018 revenue?";
 
     ChatResponse response = ChatClient.builder(chatModel)
         .build()
