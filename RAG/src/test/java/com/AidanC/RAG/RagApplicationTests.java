@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
@@ -32,7 +34,7 @@ public class RagApplicationTests {
   @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
   private Resource pdfResource;
 
-  @Test
+  @RepeatedTest(5)
   void testValidEvaluation() {
     // Query relative to document
     String userText = "What is Nvidia's 2023 total revenue?";
@@ -56,21 +58,21 @@ public class RagApplicationTests {
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
   }
 
-  @Test
+  @RepeatedTest(5)
   void testFalseEvaluation() {
     // query not relevant to document;
-    String userText = "What is Nvidia's 2018 revenue?";
+    String falseData = "What was Apple's 2018 revenue?";
 
     ChatResponse response = ChatClient.builder(chatModel)
         .build()
         .prompt()
         .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
-        .user(userText)
+        .user(falseData)
         .call()
         .chatResponse();
     var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(chatModel));
     EvaluationRequest evaluationRequest = new EvaluationRequest(
-        userText,
+        falseData,
         (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
         response);
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
