@@ -1,11 +1,8 @@
 package com.AidanC.RAG.config;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class RAGConfig {
@@ -15,9 +12,10 @@ public class RAGConfig {
     return builder.defaultSystem("Test").build();
   }
 
-  @Bean
-  public PgVectorStore vectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
-    PgVectorStore vectorStore = new PgVectorStore(jdbcTemplate, embeddingModel);
-    return vectorStore;
-  }
+  // @Bean
+  // public PgVectorStore vectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel
+  // embeddingModel) {
+  // PgVectorStore vectorStore = new PgVectorStore(jdbcTemplate, embeddingModel);
+  // return vectorStore;
+  // }
 }

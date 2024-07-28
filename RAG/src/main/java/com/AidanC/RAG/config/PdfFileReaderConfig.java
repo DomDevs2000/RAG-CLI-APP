@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PdfFileReaderConfig {
-  private final VectorStore vectorStore;
+  private final PgVectorStore vectorStore;
 
   private static final Logger log = LoggerFactory.getLogger(PdfFileReaderConfig.class);
 
