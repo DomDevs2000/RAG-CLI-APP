@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -21,10 +22,12 @@ class LlmgptApplicationTests {
 	@Autowired
 	private OpenAiChatModel chatModel;
 
+	
+	// @RepeatedTest(5)
 	@Test
 	void testPreTrainedEvaluation() {
 		// Query relative to pre-trained data
-		String userText = "What is Apple's 2017 total revenue?";
+		String userText = "What is Nvidia's 2018 total revenue?";
 
 		ChatResponse response = ChatClient.builder(chatModel)
 				.build().prompt()
@@ -36,12 +39,14 @@ class LlmgptApplicationTests {
 
 		EvaluationRequest evaluationRequest = new EvaluationRequest(userText, List.of(), response);
 		EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+		System.out.println(response);
 
+		System.out.println(evaluationResponse.getMetadata());
 		System.out.printf("Test Pre-Trained Data: %s%n ", evaluationResponse);
 		assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
-
 	}
 
+	// @RepeatedTest(5)
 	@Test
 	void testNewDataEvaluation() {
 		// Query relative to new data
@@ -56,7 +61,9 @@ class LlmgptApplicationTests {
 		var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(chatModel));
 		EvaluationRequest evaluationRequest = new EvaluationRequest(userText, List.of(), response);
 		EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+		System.out.println(response);
 
+		System.out.println(evaluationResponse.getMetadata());
 		System.out.printf("Test New Data: %s%n ", evaluationResponse);
 		assertFalse(evaluationResponse.isPass(), "Response is relevant to question");
 	}
