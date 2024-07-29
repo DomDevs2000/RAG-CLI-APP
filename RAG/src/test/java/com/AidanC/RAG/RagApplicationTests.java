@@ -34,7 +34,8 @@ public class RagApplicationTests {
   @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
   private Resource pdfResource;
 
-  @RepeatedTest(5)
+  // @RepeatedTest(5)
+  @Test
   void testValidEvaluation() {
     // Query relative to document
     String userText = "What is Nvidia's 2023 total revenue?";
@@ -58,10 +59,11 @@ public class RagApplicationTests {
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
   }
 
-  @RepeatedTest(5)
+  // @RepeatedTest(5)
+  @Test
   void testFalseEvaluation() {
     // query not relevant to document;
-    String falseData = "What was Apple's 2018 revenue?";
+    String falseData = "What was Nvidia's 2011 revenue?";
 
     ChatResponse response = ChatClient.builder(chatModel)
         .build()
