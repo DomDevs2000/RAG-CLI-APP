@@ -2,7 +2,6 @@ package com.AidanC.RAG.controller;
 
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.model.FilePathRequest;
-import com.AidanC.RAG.model.RAGResponse;
 import com.AidanC.RAG.service.RAGService;
 import java.util.List;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -31,7 +30,6 @@ public class RAGController {
   @PostMapping("/chat")
   public ResponseEntity<ChatResponse> chat(@RequestBody String message) {
     ChatResponse responseContent = ragService.getAnswer(message);
-    // RAGResponse chatResponse = new RAGResponse(responseContent);
     return ResponseEntity.ok(responseContent);
   }
 

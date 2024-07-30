@@ -1,16 +1,13 @@
 package com.AidanC.RAG.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.UserMessage;
+import java.util.HashMap;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +16,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RAGService {
-  @Autowired
-  private final OpenAiChatModel chatClient;
+public class OllamaRAGService {
+  private final OllamaChatModel chatClient;
   private final PgVectorStore vectorStore;
   private final Resource ragPromptTemplate;
 
   @Autowired
-  public RAGService(
-      OpenAiChatModel chatClient,
+  public OllamaRAGService(
+      OllamaChatModel chatClient,
       PgVectorStore vectorStore,
       @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
     this.chatClient = chatClient;

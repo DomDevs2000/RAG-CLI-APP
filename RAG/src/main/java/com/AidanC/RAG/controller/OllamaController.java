@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.AidanC.RAG.service.RAGService;
+import com.AidanC.RAG.service.OllamaRAGService;
 
 @RestController
 @RequestMapping("/v1/ollama")
 public class OllamaController {
 
-  private final RAGService ragService;
+  private final OllamaRAGService ragService;
 
-  public OllamaController(RAGService ragService) {
+  public OllamaController(OllamaRAGService ragService) {
     this.ragService = ragService;
   }
 
