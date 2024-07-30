@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.metadata.PromptMetadata;
+import org.springframework.ai.chat.metadata.RateLimit;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -37,10 +41,14 @@ public class RAGService {
     return chatClient.prompt(prompt).call().content();
   }
 
-  public ChatResponse getMetadata(String message) {
+  public Usage getMetadataTokens(String message) {
     var prompt = createPrompt(message);
+    return chatClient.prompt(prompt).call().chatResponse().getMetadata().getUsage();
+  }
 
-    return chatClient.prompt(prompt).call().chatResponse();
+  public RateLimit getMetadataRateLimit(String message) {
+    var prompt = createPrompt(message);
+    return chatClient.prompt(prompt).call().chatResponse().getMetadata().getRateLimit();
   }
 
   private List<String> findSimilarDocuments(String message) {

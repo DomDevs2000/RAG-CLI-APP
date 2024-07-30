@@ -5,6 +5,11 @@ import com.AidanC.RAG.model.FilePathRequest;
 import com.AidanC.RAG.service.RAGService;
 import java.util.List;
 
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.metadata.PromptMetadata;
+import org.springframework.ai.chat.metadata.Usage;
+
+import org.springframework.ai.chat.metadata.RateLimit;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -34,9 +39,15 @@ public class RAGController {
     return ResponseEntity.ok(responseContent);
   }
 
-  @PostMapping("/metadata")
-  public ResponseEntity<ChatResponse> metadata(@RequestBody String message) {
-    ChatResponse chatResponse = ragService.getMetadata(message);
+  @PostMapping("/metadata/tokens")
+  public ResponseEntity<Usage> metadataTokens(@RequestBody String message) {
+    Usage chatResponse = ragService.getMetadataTokens(message);
+    return ResponseEntity.ok(chatResponse);
+  }
+
+  @PostMapping("/metadata/rate_limit")
+  public ResponseEntity<RateLimit> metadataRateLimit(@RequestBody String message) {
+    RateLimit chatResponse = ragService.getMetadataRateLimit(message);
     return ResponseEntity.ok(chatResponse);
   }
 
