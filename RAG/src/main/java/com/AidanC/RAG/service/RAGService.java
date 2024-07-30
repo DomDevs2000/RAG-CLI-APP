@@ -35,8 +35,8 @@ public class RAGService {
   }
 
   public ChatResponse getAnswer(String message) {
-    var q = createPrompt(message);
-    return chatClient.call(q);
+    var prompt = createPrompt(message);
+    return chatClient.call(prompt);
   }
 
   public ChatResponse getMetadata(String message) {
@@ -46,7 +46,7 @@ public class RAGService {
   }
 
   private List<String> findSimilarDocuments(String message) {
-    List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(50));
+    List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(5));
     return similarDocuments.stream().map(Document::getContent).toList();
   }
 
