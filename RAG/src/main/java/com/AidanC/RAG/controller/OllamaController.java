@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.AidanC.RAG.service.OllamaRAGService;
 
 @RestController
-@RequestMapping("/v1/ollama")
+@RequestMapping("/ollama/v1")
 public class OllamaController {
 
   private final OllamaRAGService ragService;
