@@ -1,6 +1,7 @@
 package com.AidanC.RAG.config;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.context.annotation.Bean;
@@ -9,11 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class RAGConfig {
+  // private final OpenAiChatModel chatModel;
 
-  // @Bean
-  // public ChatClient chatClient(ChatClient.Builder builder) {
-  // return builder.defaultSystem("Test").build();
-  // }
+  @Bean
+  public ChatClient chatClient(OpenAiChatModel chatModel) {
+    return ChatClient.builder(chatModel).build();
+  }
 
   @Bean
   public PgVectorStore vectorStore(JdbcTemplate jdbcTemplate,
