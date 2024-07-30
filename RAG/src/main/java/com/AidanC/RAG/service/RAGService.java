@@ -32,9 +32,9 @@ public class RAGService {
     this.ragPromptTemplate = ragPromptTemplate;
   }
 
-  public ChatResponse getAnswer(String message) {
+  public String getAnswer(String message) {
     var prompt = createPrompt(message);
-    return chatClient.prompt(prompt).call().chatResponse();
+    return chatClient.prompt(prompt).call().content();
   }
 
   public ChatResponse getMetadata(String message) {

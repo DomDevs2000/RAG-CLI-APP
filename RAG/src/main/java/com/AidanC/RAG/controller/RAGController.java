@@ -4,6 +4,7 @@ import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.model.FilePathRequest;
 import com.AidanC.RAG.service.RAGService;
 import java.util.List;
+
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -28,8 +29,8 @@ public class RAGController {
   }
 
   @PostMapping("/chat")
-  public ResponseEntity<ChatResponse> chat(@RequestBody String message) {
-    ChatResponse responseContent = ragService.getAnswer(message);
+  public ResponseEntity<String> chat(@RequestBody String message) {
+    String responseContent = ragService.getAnswer(message);
     return ResponseEntity.ok(responseContent);
   }
 
