@@ -3,11 +3,14 @@ package com.AidanC.RAG.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +20,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RAGService {
-
-  private final ChatClient chatClient;
+  private final OllamaChatModel chatClient;
   private final PgVectorStore vectorStore;
   private final Resource ragPromptTemplate;
 
   @Autowired
   public RAGService(
-      ChatClient chatClient,
+      OllamaChatModel chatClient,
       PgVectorStore vectorStore,
       @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
     this.chatClient = chatClient;
@@ -32,18 +34,19 @@ public class RAGService {
     this.ragPromptTemplate = ragPromptTemplate;
   }
 
-  public String getAnswer(String message) {
-    var prompt = createPrompt(message);
-    return chatClient.prompt(prompt).call().content();
+  public ChatResponse getAnswer(String message) {
+    var q = createPrompt(message);
+    return chatClient.call(q);
   }
 
   public ChatResponse getMetadata(String message) {
     var prompt = createPrompt(message);
-    return chatClient.prompt(prompt).call().chatResponse();
+
+    return chatClient.call(prompt);
   }
 
   private List<String> findSimilarDocuments(String message) {
-    List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(3));
+    List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(50));
     return similarDocuments.stream().map(Document::getContent).toList();
   }
 

@@ -40,11 +40,11 @@ public class PdfFileReaderConfig {
       PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
       TokenTextSplitter textSplitter = new TokenTextSplitter();
       List<Document> splitDocuments = textSplitter.apply(pagePdfDocumentReader.get());
-      for (Document document : splitDocuments) {
-        var metaData = document.getMetadata();
-        metaData.put("filename", pdfFileName);
-        metaData.put("version", 1);
-      }
+      // for (Document document : splitDocuments) {
+      //   var metaData = document.getMetadata();
+      //   metaData.put("filename", pdfFileName);
+      //   metaData.put("version", 1);
+      // }
       vectorStore.accept(splitDocuments);
       log.info("[{}] Finished processing file: {}", threadName, pdfFileName);
     } catch (Exception e) {
