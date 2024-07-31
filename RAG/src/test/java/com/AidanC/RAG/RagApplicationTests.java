@@ -14,6 +14,7 @@ import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.ai.evaluation.RelevancyEvaluator;
 import org.springframework.ai.model.Content;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
@@ -26,7 +27,10 @@ import org.springframework.core.io.Resource;
 public class RagApplicationTests {
 
   @Autowired
-  private OpenAiChatModel chatModel;
+  private OpenAiChatModel openAiChatModel;
+
+  @Autowired
+  private OllamaChatModel ollamaChatModel;
 
   @Autowired
   private PgVectorStore vectorStore;
@@ -34,21 +38,21 @@ public class RagApplicationTests {
   @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
   private Resource pdfResource;
 
-  // @RepeatedTest(5)
+  // @RepeatedTest(10)
   @Test
-  void testValidEvaluation() {
+  void testOpenAiValidEvaluation() {
     // Query relative to document
     String userText = "What is Nvidia's 2023 total revenue?";
 
-    ChatResponse response = ChatClient.builder(chatModel)
+    ChatResponse response = ChatClient.builder(openAiChatModel)
         .build()
         .prompt()
-        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults().withTopK(3)))
         .user(userText)
         .call()
         .chatResponse();
 
-    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(chatModel));
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(openAiChatModel));
     EvaluationRequest evaluationRequest = new EvaluationRequest(
         userText,
         (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
@@ -59,20 +63,44 @@ public class RagApplicationTests {
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
   }
 
-  // @RepeatedTest(5)
   @Test
-  void testFalseEvaluation() {
+  void testOllamaValidEvaluation() {
+    // Query relative to document
+    String userText = "What is Nvidia's 2023 total revenue?";
+
+    ChatResponse response = ChatClient.builder(ollamaChatModel)
+        .build()
+        .prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults().withTopK(3)))
+        .user(userText)
+        .call()
+        .chatResponse();
+
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
+    EvaluationRequest evaluationRequest = new EvaluationRequest(
+        userText,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
+        response);
+    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+    System.out.println(response);
+    System.out.printf("Test Data Relevant To Document: %s%n ", evaluationResponse);
+    assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
+  }
+
+  // @RepeatedTest(10)
+  @Test
+  void testOpenAiFalseEvaluation() {
     // query not relevant to document;
     String falseData = "What was Nvidia's 2011 revenue?";
 
-    ChatResponse response = ChatClient.builder(chatModel)
+    ChatResponse response = ChatClient.builder(openAiChatModel)
         .build()
         .prompt()
-        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults().withTopK(3)))
         .user(falseData)
         .call()
         .chatResponse();
-    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(chatModel));
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(openAiChatModel));
     EvaluationRequest evaluationRequest = new EvaluationRequest(
         falseData,
         (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
@@ -82,7 +110,36 @@ public class RagApplicationTests {
     System.out.println(response);
 
     System.out.println(evaluationResponse.getMetadata());
-    System.out.printf("Test Data Not Relevant To Document: %s%n ", evaluationResponse);
+    System.out.printf("Test Data Not Relevant To Document: %s%n ",
+        evaluationResponse);
     assertFalse(evaluationResponse.isPass(), "Response is relevant to the question");
   }
+
+  @Test
+  void testOllamaFalseEvaluation() {
+    // query not relevant to document;
+    String falseData = "What was Nvidia's 2011 revenue?";
+
+    ChatResponse response = ChatClient.builder(ollamaChatModel)
+        .build()
+        .prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults().withTopK(3)))
+        .user(falseData)
+        .call()
+        .chatResponse();
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
+    EvaluationRequest evaluationRequest = new EvaluationRequest(
+        falseData,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
+        response);
+    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+
+    System.out.println(response);
+
+    System.out.println(evaluationResponse.getMetadata());
+    System.out.printf("Test Data Not Relevant To Document: %s%n ",
+        evaluationResponse);
+    assertFalse(evaluationResponse.isPass(), "Response is relevant to the question");
+  }
+
 }
