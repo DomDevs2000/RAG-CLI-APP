@@ -185,9 +185,53 @@ public class RagApplicationTests {
 
   @Test
   void whenQueryAskedOutOfContext_thenDontAnswer() {
-    var response = ragService.getAnswer("Why is the sky blue?");
+    var response = ragService.getAnswer("Why is the sky black?");
     assertEquals("I don't know the answer.", response);
     logger.info("Response from RAG LLM: {}", response);
   }
 
+  @Test
+  void testFalseEvaluation() {
+    String userText = "What is the sky blue?";
+
+    ChatResponse response = ChatClient.builder(openAiChatModel)
+        .build().prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .user(userText)
+        .call()
+        .chatResponse();
+
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(openAiChatModel));
+    EvaluationRequest evaluationRequest = new EvaluationRequest(userText,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS), response);
+    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+
+    logger.info("Chat Response from RAG LLM: {}", response);
+    logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
+    assertFalse(evaluationResponse.isPass(), "Response is relevant to the question");
+
+  }
+
+  @Test
+  void testEvaluation() {
+    String userText = "What Is Nvidia's 2023 total Revenue?";
+
+    ChatResponse response = ChatClient.builder(openAiChatModel)
+        .build().prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .user(userText)
+        .call()
+        .chatResponse();
+
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(openAiChatModel));
+    EvaluationRequest evaluationRequest = new EvaluationRequest(userText,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS), response);
+    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+    System.out.println(response);
+
+    logger.info("Chat Response from RAG LLM: {}", response);
+    logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
+    assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
+
+  }
 }
