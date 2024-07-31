@@ -43,7 +43,7 @@ public class OllamaRAGService {
   }
 
   private List<String> findSimilarDocuments(String message) {
-    List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(5));
+    List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(3));
     return similarDocuments.stream().map(Document::getContent).toList();
   }
 
