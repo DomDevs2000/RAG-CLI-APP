@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -218,7 +219,7 @@ public class RagApplicationTests {
 
     ChatResponse response = ChatClient.builder(openAiChatModel)
         .build().prompt()
-        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.query(userText).withTopK(3)))
         .user(userText)
         .call()
         .chatResponse();
