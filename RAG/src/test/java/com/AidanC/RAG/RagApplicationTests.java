@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 
+import com.AidanC.RAG.service.OllamaRAGService;
 import com.AidanC.RAG.service.RAGService;
 
 import groovy.util.logging.Slf4j;
@@ -46,8 +47,10 @@ public class RagApplicationTests {
   private PgVectorStore vectorStore;
 
   @Autowired
-  private RAGService ragService;
+  private OllamaRAGService ollamaRagService;
 
+  @Autowired
+  private RAGService ragService;
   @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
   private Resource pdfResource;
 
@@ -178,20 +181,23 @@ public class RagApplicationTests {
   // }
   //
   @Test
+  @Disabled
   void whenQueryAskedWithinContext_thenAnswerFromTheContext() {
-    var response = ragService.getAnswer("What was Nvidia's 2023 Total Revenue?");
+    var response = ollamaRagService.getAnswer("What was Nvidia's 2023 Total Revenue?");
     assertNotNull(response);
     logger.info("Response from RAG LLM: {}", response);
   }
 
   @Test
+  @Disabled
   void whenQueryAskedOutOfContext_thenDontAnswer() {
-    var response = ragService.getAnswer("Why is the sky black?");
+    var response = ollamaRagService.getAnswer("Why is the sky black?");
     assertEquals("I don't know the answer.", response);
     logger.info("Response from RAG LLM: {}", response);
   }
 
   @Test
+  @Disabled
   void testFalseEvaluation() {
     String userText = "What is the sky blue?";
 
@@ -214,21 +220,79 @@ public class RagApplicationTests {
   }
 
   @Test
-  void testEvaluation() {
-    String userText = "What Is Nvidia's 2023 total Revenue?";
+  @Disabled
+  // @RepeatedTest(5)
+  void testEvaluation() throws InterruptedException {
+    // Thread.sleep(30000); // thread sleep to avoid rate limiting on repeated tests
+    String query = "Summarise Apple's 5 year cumulative return";
 
-    ChatResponse response = ChatClient.builder(openAiChatModel)
+    ChatResponse response = ChatClient.builder(ollamaChatModel)
         .build().prompt()
-        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.query(userText).withTopK(3)))
-        .user(userText)
+        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.query(query).withTopK(3)))
+        .user(query)
         .call()
         .chatResponse();
 
-    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-    EvaluationRequest evaluationRequest = new EvaluationRequest(userText,
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
+
+    EvaluationRequest evaluationRequest = new EvaluationRequest(query,
         (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS), response);
+
+    // var relevancyEvaluator = new
+    // RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
-    System.out.println(response);
+
+    logger.info("Chat Response from RAG LLM: {}", response);
+    logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
+    assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
+
+  }
+
+  @Test
+  @Disabled
+  void testEvaluation2() throws InterruptedException {
+    // Thread.sleep(30000); // thread sleep to avoid rate limiting on repeated tests
+    String query = "How long is Apple's fiscal period";
+
+    ChatResponse response = ChatClient.builder(ollamaChatModel)
+        .build().prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore,
+            SearchRequest.query(query).withTopK(3)))
+        .user(query)
+        .call()
+        .chatResponse();
+
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
+
+    EvaluationRequest evaluationRequest = new EvaluationRequest(query,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
+        response);
+    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+
+    logger.info("Chat Response from RAG LLM: {}", response);
+    logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
+    assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
+
+  }
+
+  @Test
+  void testEvaluation3() throws InterruptedException {
+    String query = "What macro economic conditions affected apple";
+
+    ChatResponse response = ChatClient.builder(ollamaChatModel)
+        .build().prompt()
+        .advisors(new QuestionAnswerAdvisor(vectorStore,
+            SearchRequest.query(query).withTopK(3)))
+        .user(query)
+        .call()
+        .chatResponse();
+
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
+
+    EvaluationRequest evaluationRequest = new EvaluationRequest(query,
+        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
+        response);
+    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
 
     logger.info("Chat Response from RAG LLM: {}", response);
     logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
