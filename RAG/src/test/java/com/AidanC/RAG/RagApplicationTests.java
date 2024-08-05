@@ -56,131 +56,17 @@ public class RagApplicationTests {
   @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
   private Resource pdfResource;
 
-  // @RepeatedTest(10)
-  // @Test
-  // void testOpenAiValidEvaluation() {
-  // // Query relative to document
-  // String userText = "What is Nvidia's 2023 total revenue?";
-  //
-  // ChatResponse response = ChatClient.builder(openAiChatModel)
-  // .build()
-  // .prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.defaults().withTopK(3)))
-  // .user(userText)
-  // .call()
-  // .chatResponse();
-  //
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(
-  // userText,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  // System.out.println(response);
-  // System.out.printf("Test Data Relevant To Document: %s%n ",
-  // evaluationResponse);
-  // assertTrue(evaluationResponse.isPass(), "Response is not relevant to the
-  // question");
-  // }
-  //
-  // @Test
-  // void testOllamaValidEvaluation() {
-  // // Query relative to document
-  // String userText = "What is Nvidia's 2023 total revenue?";
-  //
-  // ChatResponse response = ChatClient.builder(ollamaChatModel)
-  // .build()
-  // .prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.defaults().withTopK(3)))
-  // .user(userText)
-  // .call()
-  // .chatResponse();
-  //
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(
-  // userText,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  // System.out.println(response);
-  // System.out.printf("Test Data Relevant To Document: %s%n ",
-  // evaluationResponse);
-  // assertTrue(evaluationResponse.isPass(), "Response is not relevant to the
-  // question");
-  // }
-  //
-  // // @RepeatedTest(10)
-  // @Test
-  // void testOpenAiFalseEvaluation() {
-  // // query not relevant to document;
-  // String falseData = "What was Nvidia's 2011 revenue?";
-  //
-  // ChatResponse response = ChatClient.builder(openAiChatModel)
-  // .build()
-  // .prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.defaults().withTopK(3)))
-  // .user(falseData)
-  // .call()
-  // .chatResponse();
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(
-  // falseData,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  //
-  // System.out.println(response);
-  //
-  // System.out.println(evaluationResponse.getMetadata());
-  // System.out.printf("Test Data Not Relevant To Document: %s%n ",
-  // evaluationResponse);
-  // assertFalse(evaluationResponse.isPass(), "Response is relevant to the
-  // question");
-  // }
-  //
-  // @Test
-  // void testOllamaFalseEvaluation() {
-  // // query not relevant to document;
-  // String falseData = "What was Nvidia's 2011 revenue?";
-  //
-  // ChatResponse response = ChatClient.builder(ollamaChatModel)
-  // .build()
-  // .prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.defaults().withTopK(3)))
-  // .user(falseData)
-  // .call()
-  // .chatResponse();
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(
-  // falseData,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  //
-  // System.out.println(response);
-  //
-  // System.out.println(evaluationResponse.getMetadata());
-  // System.out.printf("Test Data Not Relevant To Document: %s%n ",
-  // evaluationResponse);
-  // assertFalse(evaluationResponse.isPass(), "Response is relevant to the
-  // question");
-  // }
+  @BeforeEach
+  void beforeTest() throws InterruptedException {
+    logger.info("TEST STARTED ==================================");
+  }
+
+  @AfterEach
+  void afterTest() throws InterruptedException {
+    logger.info("TEST ENDED ====================================");
+    Thread.sleep(60000);
+  }
+
   //
   @Test
   @Disabled
@@ -199,7 +85,7 @@ public class RagApplicationTests {
   }
 
   @Test
-  @Disabled
+  @RepeatedTest(5)
   void testFalseEvaluation() {
     String userText = "What is the sky blue?";
 
@@ -222,8 +108,7 @@ public class RagApplicationTests {
   }
 
   @Test
-  @Disabled
-  // @RepeatedTest(5)
+  @RepeatedTest(5)
   void testEvaluation() throws InterruptedException {
     String query = "Summarise Apple's 5 year cumulative return";
 
@@ -244,18 +129,13 @@ public class RagApplicationTests {
     logger.info("Chat Response from RAG LLM: {}", response);
     logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
-    Thread.sleep(60000); // thread sleep to avoid rate limiting on repeated tests
+    // Thread.sleep(60000); // thread sleep to avoid rate limiting on repeated tests
 
   }
 
-  // void beforeTest() throws InterruptedException {
-  // Thread.sleep(60000);
-  // }
-
   @Test
-  @Disabled
+  @RepeatedTest(5)
   void testEvaluation2() throws InterruptedException {
-    // Thread.sleep(30000); // thread sleep to avoid rate limiting on repeated tests
     String query = "How long is Apple's fiscal period";
 
     ChatResponse response = ChatClient.builder(openAiChatModel)
@@ -280,7 +160,7 @@ public class RagApplicationTests {
   }
 
   @Test
-  @Disabled
+  @RepeatedTest(5)
   void testEvaluation3() throws InterruptedException {
     String query = "What macro economic conditions affected apple";
 
@@ -306,9 +186,8 @@ public class RagApplicationTests {
   }
 
   @Test
-  @Disabled
+  @RepeatedTest(5)
   void testEvaluationAgainstOllamaModel() throws InterruptedException {
-    // Thread.sleep(30000); // thread sleep to avoid rate limiting on repeated tests
     String query = "How long is Apple's fiscal period";
 
     ChatResponse response = ChatClient.builder(openAiChatModel)
@@ -333,8 +212,8 @@ public class RagApplicationTests {
   }
 
   @Test
+  @RepeatedTest(5)
   void testEvaluationAgainstOpenAiModel() throws InterruptedException {
-    // Thread.sleep(30000); // thread sleep to avoid rate limiting on repeated tests
     String query = "How long is Apple's fiscal period";
 
     ChatResponse response = ChatClient.builder(ollamaChatModel)
