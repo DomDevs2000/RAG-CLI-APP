@@ -26,20 +26,19 @@ generator = TestsetGenerator.from_langchain(
 testset = generator.generate_with_langchain_docs(documents, test_size=10, distributions={simple: 0.5, reasoning: 0.25, multi_context: 0.25})
 testset.to_pandas()
 # testset.to_csv('test.csv', index=False)
+df = testset.to_pandas()
+df.to_csv("dataset_results.csv", index=False)
 
-from datasets import Dataset
-import os
-import pandas as pd
-import requests
-from ragas import evaluate
-from ragas.metrics import faithfulness, answer_correctness, context_precision, context_recall, answer_relevancy, \
-    context_entity_recall, answer_similarity
-from ragas.metrics.critique import harmfulness
 
-dataset = Dataset.load_dataset(testset)
-
-score = evaluate(dataset,
-                 metrics=[faithfulness, answer_correctness, context_precision, context_recall, answer_relevancy,
-                          context_entity_recall, answer_similarity])
-df = score.to_pandas()
-df.to_csv('score2.csv', index=False)
+# questions = df['question'].tolist()
+# contexts = df['contexts'].tolist()
+# ground_truths = df['ground_truths'].tolist()
+#
+# data_samples = {
+#     'question': questions,
+#     'contexts': contexts,
+#     'ground_truth': ground_truths
+# }
+# test_questions = df['question'].values.tolist()
+# test_answers = [[item] for item in df['answer'].values.tolist()]
+# print(data_samples)
