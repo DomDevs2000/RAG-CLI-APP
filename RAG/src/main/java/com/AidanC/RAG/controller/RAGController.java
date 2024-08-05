@@ -2,6 +2,7 @@ package com.AidanC.RAG.controller;
 
 import com.AidanC.RAG.config.PdfFileReaderConfig;
 import com.AidanC.RAG.model.FilePathRequest;
+import com.AidanC.RAG.model.RAGResponse;
 import com.AidanC.RAG.service.RAGService;
 import java.util.List;
 
@@ -34,9 +35,10 @@ public class RAGController {
   }
 
   @PostMapping("/chat")
-  public ResponseEntity<String> chat(@RequestBody String message) {
+  public ResponseEntity<RAGResponse> chat(@RequestBody String message) {
     String responseContent = ragService.getAnswer(message);
-    return ResponseEntity.ok(responseContent);
+    RAGResponse response = new RAGResponse(responseContent);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/metadata/tokens")
