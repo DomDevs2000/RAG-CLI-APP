@@ -30,4 +30,4 @@ score = evaluate(dataset,
                  metrics=[context_precision, context_recall,
                           context_entity_recall])
 df = score.to_pandas()
-df.to_csv('dataset_metrics.csv', index=False)
+df.to_csv('apple_dataset_metrics.csv', index=False)
