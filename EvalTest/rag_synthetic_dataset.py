@@ -27,7 +27,7 @@ testset = generator.generate_with_langchain_docs(documents, test_size=10, distri
 testset.to_pandas()
 # testset.to_csv('test.csv', index=False)
 df = testset.to_pandas()
-df.to_csv("apple_dataset.csv", index=False)
+df.to_csv("rag_dataset.csv", index=False)
 
 
 # questions = df['question'].tolist()
