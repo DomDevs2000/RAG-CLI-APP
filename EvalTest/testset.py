@@ -6,7 +6,6 @@ from ragas.testset.evolutions import simple, reasoning, multi_context
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import os
 
-DATA_PATH = "."
 
 def setup_environment():
     """Configure the environment by setting the OpenAI API key."""
