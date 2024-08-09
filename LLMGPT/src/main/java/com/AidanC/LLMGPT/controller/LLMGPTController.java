@@ -24,9 +24,10 @@ public class LLMGPTController {
   }
 
   @PostMapping("/chat")
-  public ResponseEntity<String> chat(@RequestBody String message) {
-    String responseContent = llmgptService.chat(message);
-    return ResponseEntity.ok(responseContent);
+  public ResponseEntity<LLMGPTResponse> chat(@RequestBody String message) {
+    var responseContent = llmgptService.chat(message);
+    LLMGPTResponse response = new LLMGPTResponse(responseContent);
+    return ResponseEntity.ok(response);
   }
 
 }
