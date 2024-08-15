@@ -24,5 +24,5 @@ generator = TestsetGenerator.from_langchain(
 testset = generator.generate_with_langchain_docs(documents, test_size=10, distributions={simple: 0.5, reasoning: 0.25, multi_context: 0.25})
 testset.to_pandas()
 df = testset.to_pandas()
-df.to_csv("rag_dataset.csv", index=False)
+df.to_csv("llm_dataset.csv", index=False)
 

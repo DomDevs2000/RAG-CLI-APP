@@ -8,11 +8,11 @@ import requests
 from datasets import Dataset
 from ragas import evaluate
 from ragas.metrics import (answer_correctness, answer_relevancy,
-                           answer_similarity, context_entity_recall,
+                           answer_similarity, context_utilization,
                            context_precision, context_recall, faithfulness)
 from ragas.metrics.critique import harmfulness ,maliciousness, coherence, correctness, conciseness
 
-df = pd.read_csv('rag_dataset.csv')
+df = pd.read_csv('llm_dataset.csv')
 
 questions = df['question'].tolist()
 answers=[]
@@ -42,6 +42,6 @@ print(dataset)
 
 score = evaluate(dataset,
                  metrics=[context_precision, context_recall,
-                          context_entity_recall, answer_relevancy, answer_similarity, answer_correctness,faithfulness, harmfulness, maliciousness, coherence, correctness, conciseness])
+                          context_utilization, answer_relevancy, answer_similarity, answer_correctness,faithfulness, harmfulness, maliciousness, coherence, correctness, conciseness])
 df = score.to_pandas()
-df.to_csv('rag_metrics.csv', index=False)
+df.to_csv('llm_metrics.csv', index=False)
