@@ -5,16 +5,14 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 from langchain_community.document_loaders import DirectoryLoader
 loader = DirectoryLoader("./docs/")
 documents = loader.load()
-from langchain_community.llms import Ollama
 
-llm = Ollama(model="mistral")
 
 from ragas.testset.generator import TestsetGenerator
 from ragas.testset.evolutions import simple, reasoning, multi_context
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-generator_llm = Ollama(model='mistral')
-critic_llm = Ollama(model='llama3')
+generator_llm = ChatOpenAI(model="gpt-3.5-turbo")
+critic_llm = ChatOpenAI(model="gpt-4o-mini")
 embeddings = OpenAIEmbeddings()
 
 generator = TestsetGenerator.from_langchain(
