@@ -20,12 +20,7 @@ public class ApiCommand {
         this.webClient = webClientBuilder.build();
     }
 
-    // private static final String HOSTED_URL =
-    // "http://msc-rag-api-28879415.eu-west-2.elb.amazonaws.com/api/v1/budget";
     private static final String LOCAL_URL = "http://localhost:8080/api/v1/chat";
-
-    private static final String BUDGET_URL = "http://localhost:8080/api/v1/budget";
-
     private static final String UPLOAD_URL = "http://localhost:8080/api/v1/upload";
 
     @ShellMethod("Chat Command")
@@ -39,15 +34,6 @@ public class ApiCommand {
         return response != null ? response.getContent() : "No response received";
     }
 
-    @ShellMethod("Budget Command")
-    public String budget() {
-        ApiResponse response = webClient.get()
-                .uri(BUDGET_URL)
-                .retrieve()
-                .bodyToMono(ApiResponse.class)
-                .block();
-        return response != null ? response.getContent() : "No response received";
-    }
 
     @ShellMethod("Upload Command")
     public String upload(@ShellOption List<String> filePaths) {
@@ -57,7 +43,7 @@ public class ApiCommand {
                     .collect(Collectors.toList());
 
             String response = webClient.post()
-                    .uri(UPLOAD_URL)
+                    .uri("http://localhost:8080/api/v1/upload")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requests)
                     .retrieve()
