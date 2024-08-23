@@ -20,7 +20,7 @@ import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.ai.evaluation.RelevancyEvaluator;
 import org.springframework.ai.model.Content;
-import org.springframework.ai.ollama.OllamaChatModel;
+// import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
@@ -54,11 +54,11 @@ public class RagApplicationTests {
   // logger.info("TEST STARTED ==================================");
   // }
   //
-  @AfterEach
-  void afterTest() throws InterruptedException {
-    // logger.info("TEST ENDED ====================================");
-    Thread.sleep(60000);
-  }
+  // @AfterEach
+  // void afterTest() throws InterruptedException {
+  //   // logger.info("TEST ENDED ====================================");
+  //   Thread.sleep(60000);
+  // }
 
   //
   // @Test
@@ -78,9 +78,9 @@ public class RagApplicationTests {
   // }
 
   @Test
-  @RepeatedTest(4)
+  // @RepeatedTest(4)
   void testEvaluation() throws InterruptedException {
-    String query = "How long is Apple's Fiscal Year";
+    String query = "Summarise the economic factors that affected apple";
     ChatResponse response = ChatClient.builder(openAiChatModel)
         .build().prompt()
         .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.query(query).withTopK(3)))
@@ -95,6 +95,7 @@ public class RagApplicationTests {
 
     EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
 
+    logger.info("Chat Response from RAG LLM: {}", response.getResults().get(0));
     // logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
     logger.info("Evaluation Response Score: {}", evaluationResponse.getScore());
     assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
