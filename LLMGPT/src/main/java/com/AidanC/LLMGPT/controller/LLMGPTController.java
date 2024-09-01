@@ -1,8 +1,6 @@
 package com.AidanC.LLMGPT.controller;
 
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.openai.OpenAiChatModel;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,3 +29,5 @@ public class LLMGPTController {
   }
 
 }
+
+
