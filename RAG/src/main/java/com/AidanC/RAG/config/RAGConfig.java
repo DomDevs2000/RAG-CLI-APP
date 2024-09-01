@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class RAGConfig {
-  // private final OpenAiChatModel chatModel;
 
   @Bean
   public ChatClient chatClient(OpenAiChatModel chatModel) {
@@ -24,3 +23,4 @@ public class RAGConfig {
     return vectorStore;
   }
 }
+

@@ -6,12 +6,6 @@ import com.AidanC.RAG.model.RAGResponse;
 import com.AidanC.RAG.service.RAGService;
 import java.util.List;
 
-import org.springframework.ai.chat.metadata.ChatResponseMetadata;
-import org.springframework.ai.chat.metadata.PromptMetadata;
-import org.springframework.ai.chat.metadata.Usage;
-
-import org.springframework.ai.chat.metadata.RateLimit;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -41,18 +35,6 @@ public class RAGController {
     return ResponseEntity.ok(response);
   }
 
-  @PostMapping("/metadata/tokens")
-  public ResponseEntity<Usage> metadataTokens(@RequestBody String message) {
-    Usage chatResponse = ragService.getMetadataTokens(message);
-    return ResponseEntity.ok(chatResponse);
-  }
-
-  @PostMapping("/metadata/rate_limit")
-  public ResponseEntity<RateLimit> metadataRateLimit(@RequestBody String message) {
-    RateLimit chatResponse = ragService.getMetadataRateLimit(message);
-    return ResponseEntity.ok(chatResponse);
-  }
-
   @PostMapping("/upload")
   public ResponseEntity<String> upload(@RequestBody List<FilePathRequest> requests) {
     try {
@@ -65,7 +47,6 @@ public class RAGController {
         }
         Thread.ofVirtual().start(() -> pdfFileReaderConfig.addResource(pdfResource));
       }
-      // change to 202
       return ResponseEntity.ok(
           "Files Are Being Processed - Please Be Patient This May Take A While.");
     } catch (IllegalArgumentException e) {
@@ -76,3 +57,4 @@ public class RAGController {
     }
   }
 }
+
