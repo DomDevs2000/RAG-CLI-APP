@@ -20,20 +20,19 @@ public class ApiCommand {
         this.webClient = webClientBuilder.build();
     }
 
-    private static final String LOCAL_URL = "http://localhost:8080/api/v1/chat";
-    private static final String UPLOAD_URL = "http://localhost:8080/api/v1/upload";
+    private static final String CHAT_URL = "http://13.42.13.199:8080/api/v1/chat";
+    private static final String UPLOAD_URL = "http://13.42.13.199:8080/api/v1/upload";
 
     @ShellMethod("Chat Command")
     public String chat(@ShellOption String message) {
         ApiResponse response = webClient.post()
-                .uri(LOCAL_URL).contentType(MediaType.APPLICATION_JSON)
+                .uri(CHAT_URL).contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(message)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
                 .block();
         return response != null ? response.getContent() : "No response received";
     }
-
 
     @ShellMethod("Upload Command")
     public String upload(@ShellOption List<String> filePaths) {
@@ -43,7 +42,7 @@ public class ApiCommand {
                     .collect(Collectors.toList());
 
             String response = webClient.post()
-                    .uri("http://localhost:8080/api/v1/upload")
+                    .uri(UPLOAD_URL)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requests)
                     .retrieve()
