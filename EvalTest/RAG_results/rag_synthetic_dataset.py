@@ -11,7 +11,7 @@ from ragas.testset.generator import TestsetGenerator
 from ragas.testset.evolutions import simple, reasoning, multi_context
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-generator_llm = ChatOpenAI(model="gpt-3.5-turbo")
+generator_llm = ChatOpenAI(model="gpt-4o-mini")
 critic_llm = ChatOpenAI(model="gpt-4o-mini")
 embeddings = OpenAIEmbeddings()
 
