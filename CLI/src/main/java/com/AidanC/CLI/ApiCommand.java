@@ -26,7 +26,7 @@ public class ApiCommand {
     @ShellMethod("Chat Command")
     public String chat(@ShellOption String message) {
         ApiResponse response = webClient.post()
-                .uri(CHAT_URL).contentType(MediaType.APPLICATION_JSON)
+                .uri("http://localhost:8080/api/v1/chat").contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(message)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
@@ -42,7 +42,7 @@ public class ApiCommand {
                     .collect(Collectors.toList());
 
             String response = webClient.post()
-                    .uri(UPLOAD_URL)
+                    .uri("http://localhost:8080/api/v1/upload")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requests)
                     .retrieve()
