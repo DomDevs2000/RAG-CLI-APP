@@ -1,6 +1,6 @@
-# MSc Project - Retrieval Augmented Generation (RAG) Pipeline
+# MSc Project - Retrieval Augmented Generation (RAG) pipeline
 
-This project was built using Java, Spring Boot, Spring AI, Python, Langchain, Docker and AWS.
+This project was built using Java, Spring Boot, Spring AI, Python, Docker and AWS.
 
 Designed and implemented a RAG pipeline to query an LLM to generate financial information from user-uploaded
 documents such as Annual Reports, Quarterly Reports, SEC filings etc.
