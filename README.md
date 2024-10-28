@@ -2,7 +2,7 @@
 
 This project was built using Java, Spring Boot, Spring AI, Python, Docker and AWS.
 
--Designed and implemented a RAG pipeline to query an LLM to generate financial information from user-uploaded
+- Designed and implemented a RAG pipeline to query an LLM to generate financial information from user-uploaded
 documents such as Annual Reports, Quarterly Reports, SEC filings etc.
 - Ensured RESTful API endpoints to handle user prompts, file uploads and return generated information.
 - Performed evaluation testing using Python to gather statistical data such as answer similarity, correctness and
