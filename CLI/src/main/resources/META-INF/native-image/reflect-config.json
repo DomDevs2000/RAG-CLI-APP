@@ -1,0 +1,30 @@
+[
+  {
+    "name": "org.springframework.shell.standard.ShellComponent",
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "org.springframework.shell.standard.ShellMethod",
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.AidanC.CLI.ApiCommand",
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.AidanC.CLI.ApiResponse",
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.AidanC.CLI.FilePathRequest",
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true
+  }
+]
