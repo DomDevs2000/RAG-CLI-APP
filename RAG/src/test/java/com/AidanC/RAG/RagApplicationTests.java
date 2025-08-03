@@ -20,8 +20,7 @@ import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.ai.evaluation.RelevancyEvaluator;
 import org.springframework.ai.model.Content;
-// import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +30,11 @@ import org.springframework.core.io.Resource;
 
 import com.AidanC.RAG.service.RAGService;
 
-import groovy.util.logging.Slf4j;
-
 @SpringBootTest
-@Slf4j
 public class RagApplicationTests {
   private static final Logger logger = LoggerFactory.getLogger(RagApplicationTests.class);
   @Autowired
-  private OpenAiChatModel openAiChatModel;
+  private OllamaChatModel ollamaChatModel;
 
   @Autowired
   private PgVectorStore vectorStore;
@@ -81,14 +77,14 @@ public class RagApplicationTests {
   // @RepeatedTest(4)
   void testEvaluation() throws InterruptedException {
     String query = "Summarise the economic factors that affected apple";
-    ChatResponse response = ChatClient.builder(openAiChatModel)
+    ChatResponse response = ChatClient.builder(ollamaChatModel)
         .build().prompt()
         .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.query(query).withTopK(3)))
         .user(query)
         .call()
         .chatResponse();
 
-    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(openAiChatModel));
+    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
 
     EvaluationRequest evaluationRequest = new EvaluationRequest(query,
         (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS), response);

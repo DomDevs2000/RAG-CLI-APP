@@ -1,13 +1,17 @@
 package com.AidanC.RAG.config;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.reader.ExtractedTextFormatter;
-import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
-import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.core.io.Resource;
@@ -24,34 +28,49 @@ public class PdfFileReaderConfig {
   }
 
   public void addResource(Resource pdfResource) {
-    // Test Results Processing 5 very large PDFs - some over 150 Pages
-    // Completeable Future Concurrent File Process Time -> 3-3.5 Mins
-    // Normal Async File Process Time -> 3 mins
-    // Non Concurrect File Process Time -> 8.5 mins
-    // Virtual Thread File Process Time -> 2.5 mins
     long startTime = System.currentTimeMillis();
     String threadName = Thread.currentThread().getName();
     try {
       var pdfFileName = pdfResource.getFilename();
       log.info("[{}] Adding resource: {}", threadName, pdfFileName);
-      PdfDocumentReaderConfig pdfDocumentReaderConfig = PdfDocumentReaderConfig.builder()
-          .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().build())
-          .build();
-      PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(pdfResource, pdfDocumentReaderConfig);
+      
+      // Use simple PDFBox text extraction instead of Spring AI's layout stripper
+      String fullText = extractTextWithPdfBox(pdfResource);
+      
+      // Create a single document with the full text
+      Map<String, Object> metadata = new HashMap<>();
+      metadata.put("filename", pdfFileName);
+      metadata.put("source", pdfResource.getFilename());
+      
+      Document document = new Document(fullText, metadata);
+      List<Document> documents = List.of(document);
+      
+      // Split the document into chunks
       TokenTextSplitter textSplitter = new TokenTextSplitter();
-      List<Document> splitDocuments = textSplitter.apply(pagePdfDocumentReader.get());
-      // for (Document document : splitDocuments) {
-      //   var metaData = document.getMetadata();
-      //   metaData.put("filename", pdfFileName);
-      //   metaData.put("version", 1);
-      // }
+      List<Document> splitDocuments = textSplitter.apply(documents);
+      
+      // Add filename to each chunk's metadata
+      for (Document splitDoc : splitDocuments) {
+        splitDoc.getMetadata().put("filename", pdfFileName);
+        splitDoc.getMetadata().put("source", pdfFileName);
+      }
+      
       vectorStore.accept(splitDocuments);
-      log.info("[{}] Finished processing file: {}", threadName, pdfFileName);
+      log.info("[{}] Finished processing file: {} - extracted {} chunks", threadName, pdfFileName, splitDocuments.size());
     } catch (Exception e) {
       log.error("[{}] Error processing PDF resource: ", threadName, e);
     } finally {
       long endTime = System.currentTimeMillis();
       log.info("[{}] Processing time: {} ms", threadName, (endTime - startTime));
+    }
+  }
+  
+  private String extractTextWithPdfBox(Resource pdfResource) throws IOException {
+    byte[] pdfBytes = pdfResource.getInputStream().readAllBytes();
+    try (PDDocument document = Loader.loadPDF(pdfBytes)) {
+      PDFTextStripper textStripper = new PDFTextStripper();
+      textStripper.setSortByPosition(true);
+      return textStripper.getText(document);
     }
   }
 }
