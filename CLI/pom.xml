@@ -30,6 +30,8 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring-shell.version>3.2.3</spring-shell.version>
+		<native.maven.plugin.version>0.10.2</native.maven.plugin.version>
+		<spring.aot.enabled>true</spring.aot.enabled>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -71,12 +73,24 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.graalvm.buildtools</groupId>
-				<artifactId>native-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>process-aot</id>
+						<goals>
+							<goal>process-aot</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -88,6 +102,20 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
+						<version>${native.maven.plugin.version}</version>
+						<configuration>
+							<imageName>rag-cli</imageName>
+							<mainClass>com.AidanC.CLI.CliApplication</mainClass>
+							<buildArgs>
+								<buildArg>--no-fallback</buildArg>
+								<buildArg>--enable-preview</buildArg>
+								<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+								<buildArg>-H:+AddAllCharsets</buildArg>
+								<buildArg>-H:IncludeResources=application.*</buildArg>
+								<buildArg>-O2</buildArg>
+								<buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
+							</buildArgs>
+						</configuration>
 						<executions>
 							<execution>
 								<id>build-native</id>
