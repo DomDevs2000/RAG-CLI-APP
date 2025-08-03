@@ -1,1 +1,26 @@
+# Environment variables
+.env
+
+# Docker volumes
+postgres_data/
+
+# IDE files
 .idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build artifacts
+target/
+build/
+
+# Dependencies
+node_modules/
+
+SETUP.md
