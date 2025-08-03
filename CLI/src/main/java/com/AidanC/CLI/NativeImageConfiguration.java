@@ -14,15 +14,15 @@ public class NativeImageConfiguration {
         @Override
         public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
             hints.reflection()
-                .registerType(ApiCommand.class, MemberCategory.INVOKE_DECLARED_METHODS, 
-                             MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-                             MemberCategory.DECLARED_FIELDS)
-                .registerType(ApiResponse.class, MemberCategory.INVOKE_DECLARED_METHODS,
-                             MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-                             MemberCategory.DECLARED_FIELDS)
-                .registerType(FilePathRequest.class, MemberCategory.INVOKE_DECLARED_METHODS,
-                             MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-                             MemberCategory.DECLARED_FIELDS);
+                    .registerType(ApiCommand.class, MemberCategory.INVOKE_DECLARED_METHODS,
+                            MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                            MemberCategory.DECLARED_FIELDS)
+                    .registerType(ApiResponse.class, MemberCategory.INVOKE_DECLARED_METHODS,
+                            MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                            MemberCategory.DECLARED_FIELDS)
+                    .registerType(FilePathRequest.class, MemberCategory.INVOKE_DECLARED_METHODS,
+                            MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                            MemberCategory.DECLARED_FIELDS);
 
             hints.resources()
                 .registerPattern("application*.properties")
