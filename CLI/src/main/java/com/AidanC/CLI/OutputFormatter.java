@@ -96,23 +96,50 @@ public class OutputFormatter {
     }
     
     private String formatPlainText(String text) {
-        // Add some basic formatting for plain text
+        // Just return the text with some basic styling, no complex borders
         StringBuilder formatted = new StringBuilder();
         
-        // Add a subtle border
-        formatted.append(Ansi.ansi().fgBrightBlack().a("┌" + "─".repeat(50) + "┐").reset().a("\n"));
+        // Add a simple top border
+        formatted.append(Ansi.ansi().fgBrightBlue().a("━━━ Response ━━━").reset().a("\n\n"));
         
-        String[] lines = text.split("\n");
-        for (String line : lines) {
-            formatted.append(Ansi.ansi().fgBrightBlack().a("│ ").reset())
-                     .append(line)
-                     .append(Ansi.ansi().fgBrightBlack().a(String.format("%" + (49 - line.length()) + "s│", "")).reset())
-                     .append("\n");
+        // Add the text with word wrapping for better readability
+        String[] paragraphs = text.split("\n\n");
+        for (int i = 0; i < paragraphs.length; i++) {
+            String paragraph = paragraphs[i].trim();
+            if (!paragraph.isEmpty()) {
+                // Wrap long paragraphs at reasonable width
+                formatted.append(wrapText(paragraph, 80)).append("\n");
+                if (i < paragraphs.length - 1) {
+                    formatted.append("\n"); // Extra space between paragraphs
+                }
+            }
         }
         
-        formatted.append(Ansi.ansi().fgBrightBlack().a("└" + "─".repeat(50) + "┘").reset().a("\n"));
+        // Add a simple bottom border
+        formatted.append("\n").append(Ansi.ansi().fgBrightBlue().a("━━━━━━━━━━━━━━━").reset().a("\n"));
         
         return formatted.toString();
+    }
+    
+    private String wrapText(String text, int width) {
+        StringBuilder result = new StringBuilder();
+        String[] words = text.split("\\s+");
+        int lineLength = 0;
+        
+        for (String word : words) {
+            if (lineLength + word.length() + 1 > width && lineLength > 0) {
+                result.append("\n");
+                lineLength = 0;
+            }
+            if (lineLength > 0) {
+                result.append(" ");
+                lineLength++;
+            }
+            result.append(word);
+            lineLength += word.length();
+        }
+        
+        return result.toString();
     }
     
     public String formatSuccess(String message) {
