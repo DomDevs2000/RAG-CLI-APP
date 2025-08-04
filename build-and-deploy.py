@@ -273,7 +273,7 @@ def main():
     print("CLI Commands:")
     print("  upload --file-paths filename1.pdf filename2.pdf")
     print("  chat --message 'Your question here'")
-    print("  clear")
+    print("  refreshDb  # Refresh database by clearing all embeddings")
     print("")
     print("=== Logs ===")
     print("View RAG logs: docker-compose logs -f rag-app")
