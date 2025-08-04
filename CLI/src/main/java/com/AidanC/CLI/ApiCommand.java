@@ -14,24 +14,32 @@ import java.util.List;
 public class ApiCommand {
 
     private final WebClient webClient;
+    private final OutputFormatter formatter;
 
     @Autowired
-    public ApiCommand(WebClient.Builder webClientBuilder) {
+    public ApiCommand(WebClient.Builder webClientBuilder, OutputFormatter formatter) {
         this.webClient = webClientBuilder.build();
+        this.formatter = formatter;
     }
 
-    @ShellMethod("Chat Command")
+    @ShellMethod("Chat with your documents")
     public String chat(@ShellOption String message) {
-        ApiResponse response = webClient.post()
-                .uri("http://localhost:8080/api/v1/chat").contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(message)
-                .retrieve()
-                .bodyToMono(ApiResponse.class)
-                .block();
-        return response != null ? response.getContent() : "No response received";
+        try {
+            ApiResponse response = webClient.post()
+                    .uri("http://localhost:8080/api/v1/chat").contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(message)
+                    .retrieve()
+                    .bodyToMono(ApiResponse.class)
+                    .block();
+            
+            String content = response != null ? response.getContent() : "No response received";
+            return formatter.formatResponse(content);
+        } catch (Exception e) {
+            return formatter.formatError("Failed to get response: " + e.getMessage());
+        }
     }
 
-    @ShellMethod("Upload Command")
+    @ShellMethod("Upload PDF documents to the knowledge base")
     public String upload(@ShellOption List<String> filePaths) {
         try {
             List<FilePathRequest> requests = filePaths.stream()
@@ -46,9 +54,10 @@ public class ApiCommand {
                     .bodyToMono(String.class)
                     .block();
 
-            return response != null ? response : "No response received from the server.";
+            String message = response != null ? response : "No response received from the server.";
+            return formatter.formatSuccess(message);
         } catch (Exception e) {
-            return "An error occurred while uploading the files: " + e.getMessage();
+            return formatter.formatError("Failed to upload files: " + e.getMessage());
         }
     }
 
@@ -61,9 +70,10 @@ public class ApiCommand {
                     .bodyToMono(String.class)
                     .block();
 
-            return response != null ? response : "No response received from the server.";
+            String message = response != null ? response : "No response received from the server.";
+            return formatter.formatSuccess(message);
         } catch (Exception e) {
-            return "An error occurred while clearing the database: " + e.getMessage();
+            return formatter.formatError("Failed to refresh database: " + e.getMessage());
         }
     }
 
