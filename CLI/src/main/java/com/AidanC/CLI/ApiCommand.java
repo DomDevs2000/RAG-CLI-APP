@@ -52,11 +52,11 @@ public class ApiCommand {
         }
     }
 
-    @ShellMethod("Clear database of all embeddings")
-    public String clear() {
+    @ShellMethod("Refresh database by clearing all embeddings")
+    public String refreshDb() {
         try {
             String response = webClient.delete()
-                    .uri("http://localhost:8080/api/v1/cleardb")
+                    .uri("http://localhost:8080/api/v1/refreshdb")
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
