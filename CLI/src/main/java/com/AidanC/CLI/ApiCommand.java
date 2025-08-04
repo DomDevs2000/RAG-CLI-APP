@@ -61,7 +61,7 @@ public class ApiCommand {
         }
     }
 
-    @ShellMethod("Refresh database by clearing all embeddings")
+    @ShellMethod(value = "Refresh database by clearing all embeddings", key = "refreshdb")
     public String refreshDb() {
         try {
             String response = webClient.delete()
