@@ -154,21 +154,6 @@ def main():
     else:
         print_warning("No running containers found")
 
-    # Step 1.5: Start/Ensure Ollama Docker container is running
-    print_status("Starting Ollama Docker container...")
-    # Stop existing ollama container if running
-    run_command("docker stop ollama", timeout=10)
-    run_command("docker rm ollama", timeout=10)
-    
-    if not run_command("docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama"):
-        print_error("Failed to start Ollama container")
-        return 1
-    print_success("Ollama container started successfully")
-    
-    # Give Ollama a moment to start
-    print_status("Waiting for Ollama to initialize...")
-    time.sleep(5)
-
     # Step 2: Clean and build RAG application
     print_status("Building RAG application...")
     os.chdir("RAG")
@@ -278,7 +263,6 @@ def main():
     print("=== Logs ===")
     print("View RAG logs: docker-compose logs -f rag-app")
     print("View DB logs: docker-compose logs -f postgres")
-    print("View Ollama logs: docker logs -f ollama")
 
     return 0
 

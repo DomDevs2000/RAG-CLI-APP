@@ -47,16 +47,8 @@ def main():
 
     print_status("Quick build starting...")
 
-    # Start/Ensure Ollama Docker container is running
-    print_status("Starting Ollama Docker container...")
-    # Stop existing ollama container if running
-    run_command("docker stop ollama")
-    run_command("docker rm ollama")
-    
-    if not run_command("docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama"):
-        print_error("Failed to start Ollama container, continuing without it...")
-    else:
-        print_success("Ollama container started successfully")
+    # Note: Ollama is expected to be running locally on the host system
+    print_status("Skipping Ollama Docker setup - using local Ollama installation")
 
     # Build RAG
     print_status("Building RAG application...")
@@ -83,8 +75,7 @@ def main():
     print("Run CLI: java -jar CLI/target/CLI-0.0.1-SNAPSHOT.jar")
     print("Run RAG: java -jar RAG/target/RAG-0.0.1-SNAPSHOT.jar")
     print("")
-    print("Ollama is running at: http://localhost:11434")
-    print("View Ollama logs: docker logs -f ollama")
+    print("Note: Ensure Ollama is running locally at: http://localhost:11434")
 
     return 0
 
