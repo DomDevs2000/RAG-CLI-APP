@@ -20,9 +20,6 @@ public class ApiCommand {
         this.webClient = webClientBuilder.build();
     }
 
-    private static final String CHAT_URL = "http://13.42.13.199:8080/api/v1/chat";
-    private static final String UPLOAD_URL = "http://13.42.13.199:8080/api/v1/upload";
-
     @ShellMethod("Chat Command")
     public String chat(@ShellOption String message) {
         ApiResponse response = webClient.post()
@@ -52,6 +49,21 @@ public class ApiCommand {
             return response != null ? response : "No response received from the server.";
         } catch (Exception e) {
             return "An error occurred while uploading the files: " + e.getMessage();
+        }
+    }
+
+    @ShellMethod("Clear database of all embeddings")
+    public String clear() {
+        try {
+            String response = webClient.delete()
+                    .uri("http://localhost:8080/api/v1/cleardb")
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            return response != null ? response : "No response received from the server.";
+        } catch (Exception e) {
+            return "An error occurred while clearing the database: " + e.getMessage();
         }
     }
 

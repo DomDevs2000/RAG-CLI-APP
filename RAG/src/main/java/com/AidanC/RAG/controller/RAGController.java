@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +55,17 @@ public class RAGController {
     } catch (Exception e) {
       return ResponseEntity.status(500)
           .body("An error occurred while processing the files: " + e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/clear")
+  public ResponseEntity<String> clearDatabase() {
+    try {
+      ragService.clearDatabase();
+      return ResponseEntity.ok("Database cleared successfully.");
+    } catch (Exception e) {
+      return ResponseEntity.status(500)
+          .body("An error occurred while clearing the database: " + e.getMessage());
     }
   }
 }

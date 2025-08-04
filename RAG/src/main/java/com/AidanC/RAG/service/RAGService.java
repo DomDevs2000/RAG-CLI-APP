@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.ai.chat.metadata.RateLimit;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -19,17 +22,21 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RAGService {
+  private static final Logger logger = LoggerFactory.getLogger(RAGService.class);
   private final ChatClient chatClient;
   private final PgVectorStore vectorStore;
   private final Resource ragPromptTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
   @Autowired
   public RAGService(
       ChatClient chatClient,
       PgVectorStore vectorStore,
+      JdbcTemplate jdbcTemplate,
       @Value("classpath:/prompts/rag-prompt-template.st") Resource ragPromptTemplate) {
     this.chatClient = chatClient;
     this.vectorStore = vectorStore;
+    this.jdbcTemplate = jdbcTemplate;
     this.ragPromptTemplate = ragPromptTemplate;
   }
 
@@ -59,5 +66,15 @@ public class RAGService {
     promptParameters.put("input", message);
     promptParameters.put("documents", String.join("\n", findSimilarDocuments(message)));
     return promptTemplate.create(promptParameters);
+  }
+
+  public void clearDatabase() {
+    try {
+      int deletedRows = jdbcTemplate.update("DELETE FROM vector_store");
+      logger.info("Vector store cleared successfully. Deleted {} rows", deletedRows);
+    } catch (Exception e) {
+      logger.error("Error clearing vector store", e);
+      throw new RuntimeException("Unable to clear vector store: " + e.getMessage(), e);
+    }
   }
 }
