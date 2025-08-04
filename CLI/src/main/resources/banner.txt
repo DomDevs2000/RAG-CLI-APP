@@ -9,8 +9,10 @@
 ║                                                                  ║
 ║   📚 Retrieval-Augmented Generation Command Line Interface       ║
 ║                                                                  ║
+║   💬 Just type: chat your message here                           ║
+║                                                                  ║
 ║   Commands:                                                      ║
-║   • chat --message "your question"     Chat with documents       ║
+║   • chat "your message here"             Chat with documents     ║
 ║   • upload --file-paths file1.pdf      Upload PDF documents      ║
 ║   • refreshdb                          Clear knowledge base      ║
 ║   • help                               Show available commands   ║

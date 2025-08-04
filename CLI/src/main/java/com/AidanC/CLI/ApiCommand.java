@@ -22,8 +22,8 @@ public class ApiCommand {
         this.formatter = formatter;
     }
 
-    @ShellMethod("Chat with your documents")
-    public String chat(@ShellOption String message) {
+    @ShellMethod(value = "Chat with your documents", key = {"chat"})
+    public String chat(String message) {
         try {
             ApiResponse response = webClient.post()
                     .uri("http://localhost:8080/api/v1/chat").contentType(MediaType.APPLICATION_JSON)
