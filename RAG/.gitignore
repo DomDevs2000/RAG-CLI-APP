@@ -39,3 +39,4 @@ CLI.LOG
 ./src/main/resources/docs/*
 ./src/main/resources/data/vectorstore.json
 src/main/resources/docs/*
+src/test/resources/docs/*

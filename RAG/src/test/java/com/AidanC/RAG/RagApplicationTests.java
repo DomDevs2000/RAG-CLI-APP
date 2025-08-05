@@ -2,223 +2,127 @@ package com.AidanC.RAG;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
-import java.util.List;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.evaluation.EvaluationRequest;
-import org.springframework.ai.evaluation.EvaluationResponse;
-import org.springframework.ai.evaluation.RelevancyEvaluator;
-import org.springframework.ai.model.Content;
-import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.vectorstore.PgVectorStore;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.Resource;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.AidanC.RAG.config.PdfFileReaderConfig;
+import com.AidanC.RAG.controller.RAGController;
 import com.AidanC.RAG.service.RAGService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootTest
+@WebMvcTest(RAGController.class)
 public class RagApplicationTests {
-  private static final Logger logger = LoggerFactory.getLogger(RagApplicationTests.class);
-  @Autowired
-  private OllamaChatModel ollamaChatModel;
 
-  @Autowired
-  private PgVectorStore vectorStore;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired
-  private RAGService ragService;
+    @MockBean
+    private RAGService ragService;
 
-  @Value("classpath:/docs/Apple_AnnualReport_2023.pdf")
-  private Resource pdfResource;
+    @MockBean
+    private PdfFileReaderConfig pdfFileReaderConfig;
 
-  // @BeforeEach
-  // void beforeTest() throws InterruptedException {
-  // logger.info("TEST STARTED ==================================");
-  // }
-  //
-  // @AfterEach
-  // void afterTest() throws InterruptedException {
-  //   // logger.info("TEST ENDED ====================================");
-  //   Thread.sleep(60000);
-  // }
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  //
-  // @Test
-  // @Disabled
-  // void whenQueryAskedWithinContext_thenAnswerFromTheContext() {
-  // var response = ragService.getAnswer("What was Nvidia's 2023 Total Revenue?");
-  // assertNotNull(response);
-  // logger.info("Response from RAG LLM: {}", response);
-  // }
-  //
-  // @Test
-  // @Disabled
-  // void whenQueryAskedOutOfContext_thenDontAnswer() {
-  // var response = ragService.getAnswer("Why is the sky black?");
-  // assertEquals("I don't know the answer.", response);
-  // logger.info("Response from RAG LLM: {}", response);
-  // }
+    @Test
+    void testChatEndpoint_Success() throws Exception {
+        String message = "What is Apple's revenue?";
+        String expectedResponse = "Apple's total revenue for 2023 was $383.285 billion.";
+        when(ragService.getAnswer(anyString())).thenReturn(expectedResponse);
 
-  @Test
-  // @RepeatedTest(4)
-  void testEvaluation() throws InterruptedException {
-    String query = "Summarise the economic factors that affected apple";
-    ChatResponse response = ChatClient.builder(ollamaChatModel)
-        .build().prompt()
-        .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.query(query).withTopK(3)))
-        .user(query)
-        .call()
-        .chatResponse();
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/chat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("\"" + message + "\""))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(expectedResponse));
+    }
 
-    var relevancyEvaluator = new RelevancyEvaluator(ChatClient.builder(ollamaChatModel));
+    @Test
+    void testChatEndpoint_EmptyMessage() throws Exception {
+        String emptyMessage = "";
+        String expectedResponse = "Please provide a valid question.";
+        when(ragService.getAnswer(anyString())).thenReturn(expectedResponse);
 
-    EvaluationRequest evaluationRequest = new EvaluationRequest(query,
-        (List<Content>) response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS), response);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/chat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("\"" + emptyMessage + "\""))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(expectedResponse));
+    }
 
-    EvaluationResponse evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
+    @Test
+    void testUploadEndpoint_Success() throws Exception {
+        String requestBody = "[{\"filePath\": \"Apple_AnnualReport_2023.pdf\"}]";
+        doNothing().when(pdfFileReaderConfig).addResource(any());
 
-    logger.info("Chat Response from RAG LLM: {}", response.getResults().get(0));
-    // logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
-    logger.info("Evaluation Response Score: {}", evaluationResponse.getScore());
-    assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/upload")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Files Are Being Processed - Please Be Patient This May Take A While."));
+    }
 
-  }
+    @Test
+    void testUploadEndpoint_FileNotFound() throws Exception {
+        String requestBody = "[{\"filePath\": \"NonExistentFile.pdf\"}]";
 
-  // @Test
-  // @Disabled
-  // @RepeatedTest(5)
-  // void testEvaluation2() throws InterruptedException {
-  // String query = "How long is Apple's fiscal period";
-  //
-  // ChatResponse response = ChatClient.builder(openAiChatModel)
-  // .build().prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.query(query).withTopK(3)))
-  // .user(query)
-  // .call()
-  // .chatResponse();
-  //
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-  //
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(query,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  //
-  // logger.info("Chat Response from RAG LLM: {}", response);
-  // logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
-  // assertTrue(evaluationResponse.isPass(), "Response is not relevant to the
-  // question");
-  //
-  // }
-  //
-  // @Test
-  // @Disabled
-  // @RepeatedTest(5)
-  // void testEvaluation3() throws InterruptedException {
-  // String query = "Summarise the economic factors that affected apple";
-  //
-  // ChatResponse response = ChatClient.builder(openAiChatModel)
-  // .build().prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.query(query).withTopK(3)))
-  // .user(query)
-  // .call()
-  // .chatResponse();
-  //
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-  //
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(query,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  //
-  // logger.info("Chat Response from RAG LLM: {}", response);
-  // logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
-  // assertTrue(evaluationResponse.isPass(), "Response is not relevant to the
-  // question");
-  //
-  // }
-  //
-  // @Test
-  // @Disabled
-  // @RepeatedTest(5)
-  // void testEvaluation4() throws InterruptedException {
-  // String query = "How long is Apple's fiscal period";
-  //
-  // ChatResponse response = ChatClient.builder(openAiChatModel)
-  // .build().prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.query(query).withTopK(3)))
-  // .user(query)
-  // .call()
-  // .chatResponse();
-  //
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-  //
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(query,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  //
-  // logger.info("Chat Response from RAG LLM: {}", response);
-  // logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
-  // assertTrue(evaluationResponse.isPass(), "Response is not relevant to the
-  // question");
-  //
-  // }
-  //
-  // @Test
-  // @Disabled
-  // @RepeatedTest(5)
-  // void testEvaluation5() throws InterruptedException {
-  // String query = "How long is Apple's fiscal period";
-  //
-  // ChatResponse response = ChatClient.builder(openAiChatModel)
-  // .build().prompt()
-  // .advisors(new QuestionAnswerAdvisor(vectorStore,
-  // SearchRequest.query(query).withTopK(3)))
-  // .user(query)
-  // .call()
-  // .chatResponse();
-  //
-  // var relevancyEvaluator = new
-  // RelevancyEvaluator(ChatClient.builder(openAiChatModel));
-  //
-  // EvaluationRequest evaluationRequest = new EvaluationRequest(query,
-  // (List<Content>)
-  // response.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS),
-  // response);
-  // EvaluationResponse evaluationResponse =
-  // relevancyEvaluator.evaluate(evaluationRequest);
-  //
-  // logger.info("Chat Response from RAG LLM: {}", response);
-  // logger.info("Evaluation Response from RAG LLM: {}", evaluationResponse);
-  // assertTrue(evaluationResponse.isPass(), "Response is not relevant to the
-  // question");
-  //
-  // }
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/upload")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string("File does not exist: docs/NonExistentFile.pdf"));
+    }
+
+    @Test
+    void testUploadEndpoint_ProcessingError() throws Exception {
+        String requestBody = "invalid-json";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/upload")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void testRefreshDbEndpoint_Success() throws Exception {
+        doNothing().when(ragService).clearDatabase();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/refreshdb"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Database cleared successfully."));
+    }
+
+    @Test
+    void testRefreshDbEndpoint_Error() throws Exception {
+        doThrow(new RuntimeException("Database error")).when(ragService).clearDatabase();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/refreshdb"))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andExpect(MockMvcResultMatchers.content().string("An error occurred while clearing the database: Database error"));
+    }
+
+    @Test
+    void testUploadEndpoint_MultipleFiles() throws Exception {
+        String requestBody = "[{\"filePath\": \"Apple_AnnualReport_2023.pdf\"}, {\"filePath\": \"Apple_AnnualReport_2023.pdf\"}]";
+        doNothing().when(pdfFileReaderConfig).addResource(any());
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/upload")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Files Are Being Processed - Please Be Patient This May Take A While."));
+    }
 }
