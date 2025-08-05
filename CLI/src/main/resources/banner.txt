@@ -13,7 +13,7 @@
 ║                                                                  ║
 ║   Commands:                                                      ║
 ║   • chat "your message here"             Chat with documents     ║
-║   • upload --file-paths file1.pdf      Upload PDF documents      ║
+║   • upload --filePaths file1.pdf      Upload PDF documents       ║
 ║   • refreshdb                          Clear knowledge base      ║
 ║   • help                               Show available commands   ║
 ║   • exit                               Exit the application      ║
