@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-Build and Deploy Script for RAG and CLI Applications
-This script cleans, builds, packages, creates Docker images, and deploys the applications
-"""
-
 import subprocess
 import sys
 import time
@@ -12,13 +7,12 @@ import os
 import argparse
 from pathlib import Path
 
-# Colors for output
 class Colors:
     RED = '\033[0;31m'
     GREEN = '\033[0;32m'
     YELLOW = '\033[1;33m'
     BLUE = '\033[0;34m'
-    NC = '\033[0m'  # No Color
+    NC = '\033[0m'
 
 def print_status(message):
     print(f"{Colors.BLUE}[INFO]{Colors.NC} {message}")
@@ -32,23 +26,44 @@ def print_warning(message):
 def print_error(message):
     print(f"{Colors.RED}[ERROR]{Colors.NC} {message}")
 
-def run_command(command, cwd=None, timeout=None):
-    """Run a command and return True if successful"""
+def run_command(command, cwd=None, timeout=None, show_output=True):
     try:
-        result = subprocess.run(
-            command, 
-            shell=True, 
-            cwd=cwd,
-            timeout=timeout,
-            capture_output=True,
-            text=True
-        )
-        if result.returncode != 0:
-            print_error(f"Command failed: {command}")
-            if result.stderr:
-                print(result.stderr)
-            return False
-        return True
+        if show_output:
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
+
+            for line in process.stdout:
+                print(line.rstrip())
+
+            process.wait()
+
+            if process.returncode != 0:
+                print_error(f"Command failed with exit code {process.returncode}: {command}")
+                return False
+            return True
+        else:
+            result = subprocess.run(
+                command, 
+                shell=True, 
+                cwd=cwd,
+                timeout=timeout,
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                print_error(f"Command failed: {command}")
+                if result.stderr:
+                    print(result.stderr)
+                return False
+            return True
     except subprocess.TimeoutExpired:
         print_error(f"Command timed out: {command}")
         return False
@@ -57,7 +72,6 @@ def run_command(command, cwd=None, timeout=None):
         return False
 
 def check_docker_containers():
-    """Check if Docker containers are running"""
     try:
         result = subprocess.run(
             "docker-compose ps -q", 
@@ -70,11 +84,10 @@ def check_docker_containers():
         return False
 
 def wait_for_postgres():
-    """Wait for PostgreSQL to be healthy"""
     print_status("Waiting for PostgreSQL to be healthy...")
     timeout = 60
     counter = 0
-    
+
     while counter < timeout:
         try:
             result = subprocess.run(
@@ -88,26 +101,24 @@ def wait_for_postgres():
                 return True
         except:
             pass
-        
+
         time.sleep(2)
         counter += 2
-        
+
         if counter >= timeout:
             print_error(f"PostgreSQL failed to start within {timeout} seconds")
             subprocess.run("docker-compose logs postgres", shell=True)
             return False
-    
+
     return False
 
 def wait_for_rag_app():
-    """Wait for RAG application to be ready (with timeout to avoid hanging)"""
     print_status("Waiting for RAG application to be ready...")
-    timeout = 30  # Reduced timeout
+    timeout = 30
     counter = 0
     
     while counter < timeout:
         try:
-            # Check if the application is responding with a simple HTTP check
             result = subprocess.run(
                 "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/",
                 shell=True,
@@ -115,7 +126,6 @@ def wait_for_rag_app():
                 text=True,
                 timeout=5
             )
-            # If we get any HTTP response (even 404), the server is running
             if result.stdout and result.stdout.strip().isdigit():
                 print_success("RAG application is responding")
                 return True
@@ -137,16 +147,14 @@ def main():
     parser.add_argument('--skip-native', action='store_true', help='Skip native CLI image build')
     args = parser.parse_args()
 
-    # Get script directory
     script_dir = Path(__file__).parent.absolute()
     os.chdir(script_dir)
 
     print_status("Starting build and deployment process...")
 
-    # Step 1: Stop existing Docker containers
     print_status("Stopping existing Docker containers...")
     if check_docker_containers():
-        if run_command("docker-compose down"):
+        if run_command("docker-compose down", show_output=False):
             print_success("Docker containers stopped")
         else:
             print_error("Failed to stop Docker containers")
@@ -154,7 +162,6 @@ def main():
     else:
         print_warning("No running containers found")
 
-    # Step 2: Clean and build RAG application
     print_status("Building RAG application...")
     os.chdir("RAG")
 
@@ -163,7 +170,13 @@ def main():
         print_error("Failed to clean RAG project")
         return 1
 
-    print_status("Packaging RAG application (skipping tests)...")
+    print_status("Running RAG tests...")
+    if not run_command("./mvnw test"):
+        print_error("RAG tests failed - stopping build")
+        return 1
+    print_success("RAG tests passed")
+
+    print_status("Packaging RAG application...")
     if not run_command("./mvnw package -DskipTests"):
         print_error("Failed to package RAG application")
         return 1
@@ -174,7 +187,6 @@ def main():
 
     print_success("RAG application packaged successfully")
 
-    # Step 3: Build RAG Docker image
     print_status("Building RAG Docker image...")
     if not run_command("docker build -t rag-app ."):
         print_error("Failed to build RAG Docker image")
@@ -183,7 +195,6 @@ def main():
 
     os.chdir("..")
 
-    # Step 4: Clean and build CLI application
     print_status("Building CLI application...")
     os.chdir("CLI")
 
@@ -192,7 +203,13 @@ def main():
         print_error("Failed to clean CLI project")
         return 1
 
-    print_status("Packaging CLI application (skipping tests)...")
+    print_status("Running CLI tests...")
+    if not run_command("./mvnw test"):
+        print_error("CLI tests failed - stopping build")
+        return 1
+    print_success("CLI tests passed")
+
+    print_status("Packaging CLI application...")
     if not run_command("./mvnw package -DskipTests"):
         print_error("Failed to package CLI application")
         return 1
@@ -205,7 +222,6 @@ def main():
 
     os.chdir("..")
 
-    # Step 5: Build native CLI image (by default, unless skipped)
     if not args.skip_native:
         print_status("Building native CLI image...")
         os.chdir("CLI")
@@ -215,34 +231,28 @@ def main():
             print_success("Native CLI image built successfully")
         os.chdir("..")
 
-    # Step 6: Start Docker Compose services
     print_status("Starting services with Docker Compose...")
 
-    # Start PostgreSQL first and wait for it to be healthy
     print_status("Starting PostgreSQL database...")
-    if not run_command("docker-compose up -d postgres"):
+    if not run_command("docker-compose up -d postgres", show_output=False):
         print_error("Failed to start PostgreSQL")
         return 1
 
     if not wait_for_postgres():
         return 1
 
-    # Start the RAG application
     print_status("Starting RAG application...")
-    if not run_command("docker-compose up -d rag-app"):
+    if not run_command("docker-compose up -d rag-app", show_output=False):
         print_error("Failed to start RAG application")
         return 1
 
-    # Wait for RAG application to be ready
     wait_for_rag_app()
 
     print_success("All services started successfully!")
 
-    # Step 7: Display service status
     print_status("Service Status:")
     subprocess.run("docker-compose ps", shell=True)
 
-    # Step 8: Display connection information
     print_success("Deployment completed successfully!")
     print("")
     print("=== Service Information ===")
