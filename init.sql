@@ -8,7 +8,7 @@ CREATE TABLE vector_store (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
     content text,
     metadata json,
-    embedding vector(768)
+    embedding vector(1024)
 );
 
 CREATE INDEX vector_store_embedding_idx 
