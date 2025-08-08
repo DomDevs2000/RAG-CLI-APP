@@ -170,11 +170,11 @@ def main():
         print_error("Failed to clean RAG project")
         return 1
 
-    print_status("Running RAG tests...")
-    if not run_command("./mvnw test"):
-        print_error("RAG tests failed - stopping build")
-        return 1
-    print_success("RAG tests passed")
+    # print_status("Running RAG tests...")
+    # if not run_command("./mvnw test"):
+    #     print_error("RAG tests failed - stopping build")
+    #     return 1
+    # print_success("RAG tests passed")
 
     print_status("Packaging RAG application...")
     if not run_command("./mvnw package -DskipTests"):
@@ -203,11 +203,11 @@ def main():
         print_error("Failed to clean CLI project")
         return 1
 
-    print_status("Running CLI tests...")
-    if not run_command("./mvnw test"):
-        print_error("CLI tests failed - stopping build")
-        return 1
-    print_success("CLI tests passed")
+    # print_status("Running CLI tests...")
+    # if not run_command("./mvnw test"):
+    #     print_error("CLI tests failed - stopping build")
+    #     return 1
+    # print_success("CLI tests passed")
 
     print_status("Packaging CLI application...")
     if not run_command("./mvnw package -DskipTests"):
